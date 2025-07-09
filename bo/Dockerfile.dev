@@ -1,0 +1,23 @@
+ARG NODE_VERSION=23.8
+
+FROM node:${NODE_VERSION}-alpine AS base
+
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+ENV COREPACK_ENABLE_DOWNLOAD_PROMPT=0
+RUN corepack enable pnpm
+WORKDIR /usr/src/app
+
+FROM base AS development
+
+COPY . .
+
+ENV NODE_ENV=development
+
+RUN chown -R node:node ./
+
+USER node
+
+EXPOSE 3000
+
+CMD ["pnpm", "dev"]

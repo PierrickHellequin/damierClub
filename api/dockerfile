@@ -1,0 +1,22 @@
+# Étape de build
+FROM eclipse-temurin:21-jdk-jammy AS builder
+
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+
+RUN apt-get update && \
+  apt-get install -y maven && \
+  mvn clean package -DskipTests && \
+  rm -rf /var/lib/apt/lists/*
+
+# Étape finale
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
+
+# Copier le bon fichier .jar depuis l'étape précédente
+COPY --from=builder /app/target/damierclub-0.0.1-SNAPSHOT.jar app.jar
+
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
