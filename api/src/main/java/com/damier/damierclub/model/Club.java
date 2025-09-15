@@ -5,7 +5,11 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.damier.damierclub.util.UuidGenerator;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Getter
@@ -16,8 +20,8 @@ import java.time.LocalDate;
 public class Club {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(columnDefinition = "uuid")
+    private UUID id;
 
     private String name;
     private String email;
@@ -28,13 +32,21 @@ public class Club {
     @Column(name= "creation_date")
     private LocalDate creationDate;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "member_id", referencedColumnName = "id")
-    private Member members;
-    
     @Column(columnDefinition = "TEXT")
     private String description;
 
     @Column(name = "logo_url")
     private String logoUrl;
+
+    // Relation OneToMany : un club a plusieurs membres
+    @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
+    @JsonIgnore // Ignorer la liste des membres pour éviter la récursion
+    private List<Member> members;
+
+    @PrePersist
+    public void generateId() {
+        if (this.id == null) {
+            this.id = UuidGenerator.generateUuidV7();
+        }
+    }
 }

@@ -1,7 +1,23 @@
 {
 	"dependencies": {
+		"@ant-design/icons": "^5.3.7",
+		"@ant-design/v5-patch-for-react-19": "^1.0.3",
+		"antd": "^5.22.0",
+		"dayjs": "^1.11.18",
 		"next": "^15.3.5",
 		"react": "^19.1.0",
 		"react-dom": "^19.1.0"
+	},
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"typecheck": "tsc --noEmit"
+	},
+	"packageManager": "pnpm@10.16.1",
+	"devDependencies": {
+		"@types/node": "^20.12.12",
+		"@types/react": "^18.3.5",
+		"typescript": "^5.5.4"
 	}
 }

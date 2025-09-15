@@ -1,0 +1,12 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, Arial, sans-serif;
+}
+#root {
+  min-height: 100vh;
+}
+main {
+  padding: 24px;
+}

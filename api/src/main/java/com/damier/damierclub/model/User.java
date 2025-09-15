@@ -7,9 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.damier.damierclub.util.UuidGenerator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,43 +18,39 @@ import java.util.UUID;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "members")
-public class Member {
+@Table(name = "users")
+public class User {
 
     @Id
     @Column(columnDefinition = "uuid")
     private UUID id;
 
+    // Authentification
     @NotBlank
     private String name; // pseudo
+    
     @Email
     @Column(unique = true)
     private String email;
-    private String phone;
-    private String address;
-    private String city;
-    private int rate;
+    
     @JsonIgnore
     private String password;
 
-    // Champs profil
+    // Profil global
     private String firstName;
     private String lastName;
     private LocalDate birthDate;
     private String gender;
+    private String phone;
+    private String address;
+    private String city;
+    private int rate; // classement échecs
     private Boolean active = true;
 
-    // Relation ManyToOne : un membre appartient à un club
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "club_id")
-    private Club club;
-
-    // Rôle du membre dans le club (ex: PRESIDENT, SECRETAIRE, TRESORIER, MEMBRE)
-    @Enumerated(EnumType.STRING)
-    private ClubRole clubRole = ClubRole.MEMBRE;
-
-    // Rôle système (ex: ADMIN, USER)
-    private String role = "ROLE_USER";
+    // Relations avec les clubs via Membership
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Membership> memberships;
 
     @PrePersist
     public void generateId() {
