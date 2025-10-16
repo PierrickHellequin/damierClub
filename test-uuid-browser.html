@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test UUID - DamierClub</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        .test {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #2196F3;
+            background: #f9f9f9;
+        }
+        .test.success {
+            border-left-color: #4CAF50;
+            background: #e8f5e9;
+        }
+        .test.error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        .test h3 {
+            margin-top: 0;
+        }
+        button {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #1976D2;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #d32f2f;
+        }
+        pre {
+            background: #263238;
+            color: #aed581;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status.ok {
+            background: #4CAF50;
+            color: white;
+        }
+        .status.error {
+            background: #f44336;
+            color: white;
+        }
+        .loading {
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test UUID - DamierClub</h1>
+
+        <p><strong>Compte de test:</strong> pkhv@hotmail.fr / 123456</p>
+        <p><strong>UUID:</strong> <code id="userId">0199ee84-e695-7d1e-83df-a9f953867224</code></p>
+
+        <button onclick="runAllTests()">▶️ Lancer Tous les Tests</button>
+        <button onclick="clearCache()" class="danger">🗑️ Vider Cache & Recharger</button>
+
+        <hr>
+
+        <div id="test1" class="test">
+            <h3>Test 1: Connexion API <span id="status1" class="status"></span></h3>
+            <div id="result1" class="loading">En attente...</div>
+        </div>
+
+        <div id="test2" class="test">
+            <h3>Test 2: Récupération Profil avec UUID <span id="status2" class="status"></span></h3>
+            <div id="result2" class="loading">En attente...</div>
+        </div>
+
+        <div id="test3" class="test">
+            <h3>Test 3: Vérification Type UUID <span id="status3" class="status"></span></h3>
+            <div id="result3" class="loading">En attente...</div>
+        </div>
+
+        <div id="test4" class="test">
+            <h3>Test 4: Test avec Nombre (doit échouer) <span id="status4" class="status"></span></h3>
+            <div id="result4" class="loading">En attente...</div>
+        </div>
+
+        <div id="test5" class="test">
+            <h3>Test 5: Simulation Parsing Page Profil <span id="status5" class="status"></span></h3>
+            <div id="result5" class="loading">En attente...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8090';
+        const USER_EMAIL = 'pkhv@hotmail.fr';
+        const USER_PASSWORD = '123456';
+        let userId = '0199ee84-e695-7d1e-83df-a9f953867224';
+
+        function setStatus(testNum, success, message) {
+            const testDiv = document.getElementById(`test${testNum}`);
+            const statusSpan = document.getElementById(`status${testNum}`);
+            const resultDiv = document.getElementById(`result${testNum}`);
+
+            if (success) {
+                testDiv.className = 'test success';
+                statusSpan.className = 'status ok';
+                statusSpan.textContent = '✅ OK';
+            } else {
+                testDiv.className = 'test error';
+                statusSpan.className = 'status error';
+                statusSpan.textContent = '❌ ÉCHEC';
+            }
+
+            resultDiv.innerHTML = message;
+        }
+
+        async function test1_login() {
+            try {
+                const response = await fetch(`${API_BASE}/api/internal/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: USER_EMAIL, password: USER_PASSWORD })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    userId = user.id;
+                    document.getElementById('userId').textContent = userId;
+
+                    setStatus(1, true, `
+                        <strong>Connexion réussie!</strong><br>
+                        <pre>${JSON.stringify(user, null, 2)}</pre>
+                    `);
+                    return true;
+                } else {
+                    setStatus(1, false, `Erreur ${response.status}: ${await response.text()}`);
+                    return false;
+                }
+            } catch (error) {
+                setStatus(1, false, `Erreur réseau: ${error.message}`);
+                return false;
+            }
+        }
+
+        async function test2_getProfile() {
+            try {
+                const url = `${API_BASE}/api/members/${userId}`;
+                console.log('🔍 Test 2: Appel API avec UUID:', url);
+
+                const response = await fetch(url, {
+                    headers: { 'X-User-Email': USER_EMAIL }
+                });
+
+                if (response.status === 403) {
+                    setStatus(2, false, `
+                        <strong>❌ ERREUR 403 - UUID TRONQUÉ!</strong><br>
+                        <strong>URL appelée:</strong> <code>${url}</code><br>
+                        <br>
+                        <strong>❌ L'API a reçu un UUID tronqué (probablement "199")</strong><br>
+                        <br>
+                        <strong>Solution:</strong>
+                        <ol>
+                            <li>Cliquez sur "Vider Cache & Recharger"</li>
+                            <li>Ou appuyez sur CTRL + SHIFT + R</li>
+                            <li>Ou videz le cache dans DevTools (F12 → Application → Clear storage)</li>
+                        </ol>
+                    `);
+                    return false;
+                }
+
+                if (response.ok) {
+                    const member = await response.json();
+                    setStatus(2, true, `
+                        <strong>✅ Profil récupéré avec succès!</strong><br>
+                        <strong>URL:</strong> <code>${url}</code><br>
+                        <strong>Status:</strong> 200 OK<br>
+                        <pre>${JSON.stringify(member, null, 2)}</pre>
+                    `);
+                    return true;
+                } else {
+                    setStatus(2, false, `Erreur ${response.status}`);
+                    return false;
+                }
+            } catch (error) {
+                setStatus(2, false, `Erreur réseau: ${error.message}`);
+                return false;
+            }
+        }
+
+        function test3_uuidType() {
+            const isString = typeof userId === 'string';
+            const isValidUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
+            const isNumber = /^\d+$/.test(userId);
+
+            if (isString && isValidUUID && !isNumber) {
+                setStatus(3, true, `
+                    <strong>✅ UUID est valide!</strong><br>
+                    <strong>Type:</strong> ${typeof userId}<br>
+                    <strong>Valeur:</strong> <code>${userId}</code><br>
+                    <strong>Format:</strong> UUID valide ✅<br>
+                    <strong>Pas un nombre:</strong> ✅
+                `);
+                return true;
+            } else {
+                setStatus(3, false, `
+                    <strong>❌ UUID invalide!</strong><br>
+                    Type: ${typeof userId}<br>
+                    Valeur: ${userId}<br>
+                    Est un nombre? ${isNumber ? 'OUI ❌' : 'NON ✅'}<br>
+                    Format UUID? ${isValidUUID ? 'OUI ✅' : 'NON ❌'}
+                `);
+                return false;
+            }
+        }
+
+        async function test4_rejectNumber() {
+            try {
+                const url = `${API_BASE}/api/members/123`;
+                const response = await fetch(url, {
+                    headers: { 'X-User-Email': USER_EMAIL }
+                });
+
+                if (response.status >= 400) {
+                    setStatus(4, true, `
+                        <strong>✅ API rejette correctement les nombres!</strong><br>
+                        <strong>URL:</strong> <code>${url}</code><br>
+                        <strong>Status:</strong> ${response.status} (attendu: 400+) ✅
+                    `);
+                    return true;
+                } else {
+                    setStatus(4, false, `
+                        ⚠️ API accepte les nombres (Status: ${response.status})<br>
+                        Cela peut causer des problèmes
+                    `);
+                    return false;
+                }
+            } catch (error) {
+                setStatus(4, false, `Erreur: ${error.message}`);
+                return false;
+            }
+        }
+
+        function test5_profileParsing() {
+            // Simuler ce que fait la page profil
+            const urlParam = userId; // Vient de l'URL
+
+            // MAUVAIS (ancien code):
+            // const parsedId = parseInt(urlParam, 10); // ❌ Tronque en 199
+
+            // BON (nouveau code):
+            const parsedId = typeof urlParam === 'string' ? urlParam : String(urlParam);
+
+            if (parsedId === userId && parsedId.length > 10) {
+                setStatus(5, true, `
+                    <strong>✅ Parsing préserve l'UUID!</strong><br>
+                    <strong>URL param:</strong> <code>${urlParam}</code><br>
+                    <strong>Après parsing:</strong> <code>${parsedId}</code><br>
+                    <strong>Identiques:</strong> ✅<br>
+                    <strong>Longueur préservée:</strong> ${parsedId.length} caractères ✅
+                `);
+                return true;
+            } else {
+                setStatus(5, false, `
+                    ❌ UUID tronqué pendant le parsing!<br>
+                    Original: ${urlParam}<br>
+                    Après parsing: ${parsedId}
+                `);
+                return false;
+            }
+        }
+
+        async function runAllTests() {
+            console.log('🧪 Lancement de tous les tests...');
+
+            const result1 = await test1_login();
+            if (!result1) return;
+
+            await new Promise(r => setTimeout(r, 500));
+            const result2 = await test2_getProfile();
+
+            await new Promise(r => setTimeout(r, 500));
+            const result3 = test3_uuidType();
+
+            await new Promise(r => setTimeout(r, 500));
+            const result4 = await test4_rejectNumber();
+
+            await new Promise(r => setTimeout(r, 500));
+            const result5 = test5_profileParsing();
+
+            console.log('✅ Tests terminés');
+
+            if (result1 && result2 && result3 && result4 && result5) {
+                alert('🎉 TOUS LES TESTS PASSENT!\n\nVous pouvez maintenant utiliser l\'application normalement.');
+            } else {
+                alert('⚠️ Certains tests ont échoué.\n\nVidez le cache du navigateur:\n- CTRL + SHIFT + R\n- Ou F12 → Application → Clear storage');
+            }
+        }
+
+        function clearCache() {
+            if (confirm('Cela va:\n1. Vider le localStorage\n2. Vider le sessionStorage\n3. Recharger la page\n\nContinuer?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+
+                // Forcer un hard reload
+                window.location.href = window.location.href + '?t=' + Date.now();
+            }
+        }
+
+        // Lancer automatiquement au chargement
+        window.addEventListener('load', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>

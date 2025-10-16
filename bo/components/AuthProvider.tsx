@@ -17,18 +17,6 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8090';
 const STORAGE_KEY = 'sessionUser';
 
-async function hmacSha256Hex(secret: string, payload: string): Promise<string> {
-  if (typeof window !== 'undefined' && window.crypto?.subtle) {
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey('raw', enc.encode(secret), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
-    const sigBuf = await crypto.subtle.sign('HMAC', key, enc.encode(payload));
-    return [...new Uint8Array(sigBuf)].map(b => b.toString(16).padStart(2, '0')).join('');
-  } else {
-    const { createHmac } = await import('crypto');
-    return createHmac('sha256', secret).update(payload).digest('hex');
-  }
-}
-
 interface AuthProviderProps { children: ReactNode }
 
 export default function AuthProvider({ children }: AuthProviderProps) {
@@ -81,11 +69,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchAuth = useCallback(async (url: string, options: RequestInit = {}): Promise<Response> => {
     if (!user) throw new Error('Non authentifié');
-    const ts = Math.floor(Date.now() / 1000).toString();
-    const secret = process.env.NEXT_PUBLIC_HMAC_SECRET || 'dev-hmac-secret';
-    const payload = `${user.email}:${ts}`;
-    const sig = await hmacSha256Hex(secret, payload);
-    const headers = { ...(options.headers || {}), 'X-User-Email': user.email, 'X-Auth-Timestamp': ts, 'X-Auth-Signature': sig } as Record<string, string>;
+    const headers = { ...(options.headers || {}), 'X-User-Email': user.email } as Record<string, string>;
     const res = await fetch(url, { ...options, headers });
     if (res.status === 401) logout();
     return res;

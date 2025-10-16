@@ -34,6 +34,8 @@ services:
       context: ./bo
       dockerfile: Dockerfile.dev
     container_name: club-bo
+    depends_on:
+      - api
     ports:
       - "3009:3000"
     environment:

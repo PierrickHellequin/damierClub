@@ -10,6 +10,10 @@ WORKDIR /usr/src/app
 
 FROM base AS development
 
+COPY package.json pnpm-lock.yaml* ./
+
+RUN pnpm install --frozen-lockfile
+
 COPY . .
 
 ENV NODE_ENV=development

@@ -16,10 +16,10 @@ interface UseMembersResult {
   error: string | null;
   refetch: () => Promise<void>;
   upsertMember: (
-    id: number | null,
+    id: string | null,
     values: Partial<Member> & { password?: string }
   ) => Promise<Member | null>;
-  deleteMember: (id: number) => Promise<void>;
+  deleteMember: (id: string) => Promise<void>;
   lastUpdated: number | null;
   total: number;
 }
@@ -95,7 +95,7 @@ export default function useMembers(
 
   const upsertMember = useCallback(
     async (
-      id: number | null,
+      id: string | null,
       values: Partial<Member> & { password?: string }
     ) => {
       if (!user) return null;
@@ -109,7 +109,7 @@ export default function useMembers(
   );
 
   const deleteMember = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       await memberProvider.deleteMember(id);
       await refetch();
     },

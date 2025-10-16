@@ -15,8 +15,8 @@ export default function ProfilPage() {
   const { user } = useAuth();
   const { message } = App.useApp();
   const idParam = params?.id;
-  const id = typeof idParam === 'string' ? parseInt(idParam, 10) : Array.isArray(idParam) ? parseInt(idParam[0], 10) : NaN;
-  const { member, loading, error, reload } = useMember(isNaN(id) ? null : id);
+  const id = typeof idParam === 'string' ? idParam : Array.isArray(idParam) ? idParam[0] : null;
+  const { member, loading, error, reload } = useMember(id);
   const { clubs, loading: clubsLoading } = useClubs({ enabled: true });
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);

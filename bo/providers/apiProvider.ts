@@ -10,26 +10,7 @@ interface CallOptions {
 }
 
 function getBase() {
-  return process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8080";
-}
-
-async function hmac(secret: string, payload: string) {
-  if (window.crypto?.subtle) {
-    const enc = new TextEncoder();
-    const key = await crypto.subtle.importKey(
-      "raw",
-      enc.encode(secret),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"]
-    );
-    const sig = await crypto.subtle.sign("HMAC", key, enc.encode(payload));
-    return Array.from(new Uint8Array(sig))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-  }
-  const { createHmac } = await import("crypto");
-  return createHmac("sha256", secret).update(payload).digest("hex");
+  return process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8090";
 }
 
 async function buildAuthHeaders(): Promise<Record<string, string>> {
@@ -38,14 +19,8 @@ async function buildAuthHeaders(): Promise<Record<string, string>> {
   if (!raw) return {};
   try {
     const user: Member = JSON.parse(raw);
-    const ts = Math.floor(Date.now() / 1000).toString();
-    const secret = process.env.NEXT_PUBLIC_HMAC_SECRET || "dev-hmac-secret";
-    const payload = `${user.email}:${ts}`;
-    const sig = await hmac(secret, payload);
     return {
       "X-User-Email": user.email,
-      "X-Auth-Timestamp": ts,
-      "X-Auth-Signature": sig,
     };
   } catch {
     return {};

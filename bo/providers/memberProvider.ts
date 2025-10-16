@@ -65,7 +65,7 @@ export const memberProvider = {
     }
   },
 
-  async getMember(id: number): Promise<Member> {
+  async getMember(id: string): Promise<Member> {
     return apiProvider.call<Member>({ url: `members/${id}`, method: "GET" });
   },
 
@@ -80,7 +80,7 @@ export const memberProvider = {
   },
 
   async updateMember(
-    id: number,
+    id: string,
     payload: Partial<Member> & { password?: string }
   ): Promise<Member> {
     return apiProvider.call<Member>({
@@ -90,7 +90,7 @@ export const memberProvider = {
     });
   },
 
-  async deleteMember(id: number): Promise<void> {
+  async deleteMember(id: string): Promise<void> {
     await apiProvider.call<void>({ url: `members/${id}`, method: "DELETE" });
   },
 

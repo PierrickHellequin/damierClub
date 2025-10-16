@@ -3,7 +3,7 @@ import { Member } from "@/types/member";
 import { useAuth } from "@/components/AuthProvider";
 import { memberProvider } from "@/providers/memberProvider";
 
-export default function useMember(id: number | null) {
+export default function useMember(id: string | null) {
   const { user } = useAuth();
   const [member, setMember] = useState<Member | null>(null);
   const [loading, setLoading] = useState<boolean>(false);

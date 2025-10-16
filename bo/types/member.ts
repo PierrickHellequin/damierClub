@@ -21,7 +21,7 @@ export enum ClubRole {
 }
 
 export interface Member {
-  id: number;
+  id: string; // UUID
   name: string; // pseudo
   email: string;
   phone?: string;
