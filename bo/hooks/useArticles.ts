@@ -1,5 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
-import { message } from 'antd';
+'use client';
+
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { App } from 'antd';
 import articleProvider from '../providers/articleProvider';
 import type {
   Article,
@@ -27,7 +29,7 @@ interface UseArticlesResult {
   fetchStats: () => Promise<void>;
 }
 
-export default function useArticles(initialFilters: ArticleFilters = {}): UseArticlesResult {
+export default function useArticles(initialFilters?: ArticleFilters): UseArticlesResult {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -35,13 +37,17 @@ export default function useArticles(initialFilters: ArticleFilters = {}): UseArt
   const [totalPages, setTotalPages] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [stats, setStats] = useState<ArticleStats | null>(null);
+  const initialFiltersRef = useRef<ArticleFilters>(initialFilters ?? {});
+  const serializedInitialFiltersRef = useRef<string>(JSON.stringify(initialFilters ?? {}));
+  const hasFetchedInitialRef = useRef(false);
+  const { message: messageApi } = App.useApp();
 
   const fetchArticles = useCallback(async (filters: ArticleFilters = {}) => {
     try {
       setLoading(true);
       setError(null);
       const data: ArticlePage = await articleProvider.getArticles({
-        ...initialFilters,
+        ...initialFiltersRef.current,
         ...filters,
       });
       setArticles(data.content);
@@ -51,11 +57,11 @@ export default function useArticles(initialFilters: ArticleFilters = {}): UseArt
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch articles';
       setError(errorMessage);
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [initialFilters]);
+  }, [messageApi]);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -69,16 +75,16 @@ export default function useArticles(initialFilters: ArticleFilters = {}): UseArt
   const createArticle = useCallback(async (data: ArticleFormData): Promise<Article | null> => {
     try {
       const newArticle = await articleProvider.createArticle(data);
-      message.success('Article créé avec succès');
+      messageApi.success('Article créé avec succès');
       await fetchArticles();
       await fetchStats();
       return newArticle;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create article';
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats]);
+  }, [fetchArticles, fetchStats, messageApi]);
 
   const updateArticle = useCallback(async (
     id: string,
@@ -86,75 +92,92 @@ export default function useArticles(initialFilters: ArticleFilters = {}): UseArt
   ): Promise<Article | null> => {
     try {
       const updatedArticle = await articleProvider.updateArticle(id, data);
-      message.success('Article modifié avec succès');
+      messageApi.success('Article modifié avec succès');
       await fetchArticles();
       return updatedArticle;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update article';
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       return null;
     }
-  }, [fetchArticles]);
+  }, [fetchArticles, messageApi]);
 
   const deleteArticle = useCallback(async (id: string): Promise<void> => {
     try {
       await articleProvider.deleteArticle(id);
-      message.success('Article supprimé avec succès');
+      messageApi.success('Article supprimé avec succès');
       await fetchArticles();
       await fetchStats();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete article';
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       throw err;
     }
-  }, [fetchArticles, fetchStats]);
+  }, [fetchArticles, fetchStats, messageApi]);
 
   const publishArticle = useCallback(async (id: string): Promise<Article | null> => {
     try {
       const article = await articleProvider.publishArticle(id);
-      message.success('Article publié avec succès');
+      messageApi.success('Article publié avec succès');
       await fetchArticles();
       await fetchStats();
       return article;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to publish article';
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats]);
+  }, [fetchArticles, fetchStats, messageApi]);
 
   const unpublishArticle = useCallback(async (id: string): Promise<Article | null> => {
     try {
       const article = await articleProvider.unpublishArticle(id);
-      message.success('Article dépublié avec succès');
+      messageApi.success('Article dépublié avec succès');
       await fetchArticles();
       await fetchStats();
       return article;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to unpublish article';
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats]);
+  }, [fetchArticles, fetchStats, messageApi]);
 
   const archiveArticle = useCallback(async (id: string): Promise<Article | null> => {
     try {
       const article = await articleProvider.archiveArticle(id);
-      message.success('Article archivé avec succès');
+      messageApi.success('Article archivé avec succès');
       await fetchArticles();
       await fetchStats();
       return article;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to archive article';
-      message.error(errorMessage);
+      messageApi.error(errorMessage);
       return null;
     }
+  }, [fetchArticles, fetchStats, messageApi]);
+
+  useEffect(() => {
+    if (hasFetchedInitialRef.current) {
+      return;
+    }
+    hasFetchedInitialRef.current = true;
+    fetchArticles({ ...initialFiltersRef.current });
+    fetchStats();
   }, [fetchArticles, fetchStats]);
 
   useEffect(() => {
-    fetchArticles();
-    fetchStats();
-  }, [fetchArticles, fetchStats]);
+    const serialized = JSON.stringify(initialFilters ?? {});
+    if (serialized !== serializedInitialFiltersRef.current) {
+      serializedInitialFiltersRef.current = serialized;
+      initialFiltersRef.current = initialFilters ?? {};
+      if (hasFetchedInitialRef.current) {
+        fetchArticles({ ...initialFiltersRef.current });
+      }
+    } else if (!hasFetchedInitialRef.current && initialFilters) {
+      initialFiltersRef.current = initialFilters;
+    }
+  }, [initialFilters, fetchArticles]);
 
   return {
     articles,
