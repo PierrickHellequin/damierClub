@@ -1,6 +1,6 @@
 'use client';
 import { Layout, Menu, Avatar, Typography, Spin } from 'antd';
-import { HomeOutlined, TeamOutlined, UserOutlined, BankOutlined } from '@ant-design/icons';
+import { HomeOutlined, TeamOutlined, UserOutlined, BankOutlined, FileTextOutlined } from '@ant-design/icons';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
 import { useMemo, useEffect } from 'react';
@@ -16,6 +16,7 @@ export default function LayoutShell({ children }) {
     if (pathname === '/') return ['home'];
     if (pathname.startsWith('/members')) return ['members'];
     if (pathname.startsWith('/clubs')) return ['clubs'];
+    if (pathname.startsWith('/articles')) return ['articles'];
     return [];
   }, [pathname]);
 
@@ -56,11 +57,13 @@ export default function LayoutShell({ children }) {
             if (info.key === 'home') router.push('/');
             if (info.key === 'members') router.push('/members');
             if (info.key === 'clubs') router.push('/clubs');
+            if (info.key === 'articles') router.push('/articles');
           }}
           items={[
             { key: 'home', icon: <HomeOutlined />, label: 'Homepage' },
             { key: 'clubs', icon: <BankOutlined />, label: 'Clubs' },
-            { key: 'members', icon: <TeamOutlined />, label: 'Members' }
+            { key: 'members', icon: <TeamOutlined />, label: 'Members' },
+            { key: 'articles', icon: <FileTextOutlined />, label: 'Articles' }
           ]}
         />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: 12, borderTop: '1px solid #eee', display: 'flex', alignItems: 'center', gap: 8 }}>
