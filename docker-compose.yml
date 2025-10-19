@@ -37,28 +37,37 @@ services:
     depends_on:
       - api
     ports:
-      - "3009:3000"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
       - PORT=3000
       - NEXT_PUBLIC_API_BASE=http://localhost:8090
-    command: pnpm dev
+    volumes:
+      # Selective bind mounts - only source code, not node_modules or .next
+      - ./bo/app:/app/app:delegated
+      - ./bo/components:/app/components:delegated
+      - ./bo/providers:/app/providers:delegated
+      - ./bo/hooks:/app/hooks:delegated
+      - ./bo/types:/app/types:delegated
+      - ./bo/public:/app/public:delegated
+      - ./bo/cypress:/app/cypress:delegated
+      - ./bo/styles:/app/styles:delegated
+      - ./bo/package.json:/app/package.json:ro
+      - ./bo/tsconfig.json:/app/tsconfig.json:ro
+      - ./bo/next.config.ts:/app/next.config.ts:ro
+      - ./bo/cypress.config.ts:/app/cypress.config.ts:ro
+      - ./bo/next-env.d.ts:/app/next-env.d.ts:ro
+      # Named volumes for node_modules and .next (do not mount from Windows)
+      - bo-node-modules:/app/node_modules
+      - bo-next:/app/.next
     networks:
       - club-net
-    develop:
-      watch:
-        - action: sync
-          path: ./bo
-          target: /usr/src/app
-          ignore:
-            - node_modules/
-            - .next/
-        - action: rebuild
-          path: ./bo/package.json
 
 volumes:
   pgdata:
+  bo-node-modules:
+  bo-next:
 
 
 networks:

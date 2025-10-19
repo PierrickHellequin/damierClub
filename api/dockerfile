@@ -1,20 +1,22 @@
-# Étape de build
-FROM eclipse-temurin:21-jdk-jammy AS builder
+# Étape de build - Utilise l'image Maven officielle
+FROM maven:3.9.6-eclipse-temurin-21-alpine AS builder
 
 WORKDIR /app
+
+# Copier pom.xml et télécharger les dépendances (pour le cache Docker)
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copier le code source et compiler
 COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-RUN apt-get update && \
-  apt-get install -y maven && \
-  mvn clean package -DskipTests && \
-  rm -rf /var/lib/apt/lists/*
+# Étape finale - Image légère avec seulement le JRE
+FROM eclipse-temurin:21-jre-alpine
 
-# Étape finale
-FROM eclipse-temurin:21-jre-jammy
 WORKDIR /app
 
-# Copier le bon fichier .jar depuis l'étape précédente
+# Copier le JAR compilé depuis l'étape de build
 COPY --from=builder /app/target/damierclub-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
