@@ -1,0 +1,36 @@
+.note-card {
+  height: 100%;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.note-card .ant-card-body {
+  padding: 16px;
+  min-height: 200px;
+}
+
+.note-card .ant-card-actions {
+  background-color: rgba(255, 255, 255, 0.5);
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.note-card .ant-card-actions > li {
+  margin: 8px 0;
+}
+
+.note-card .ant-card-actions > li > span {
+  font-size: 16px;
+  color: rgba(0, 0, 0, 0.45);
+  transition: color 0.3s;
+}
+
+.note-card .ant-card-actions > li > span:hover {
+  color: #1890ff;
+}
