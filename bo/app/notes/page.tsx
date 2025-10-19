@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Row, Col, Button, Input, Select, Space, Pagination, Spin, Alert, Modal, message, Statistic } from 'antd';
+import { Row, Col, Button, Input, Select, Space, Pagination, Spin, Alert, Modal, App, Statistic } from 'antd';
 import { PlusOutlined, SearchOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useNotes } from '../../hooks/useNotes';
@@ -16,6 +16,7 @@ export default function NotesPage() {
   const router = useRouter();
   const { notes, page, filters, loading, error, updateFilters, changePage, deleteNote, pinNote, unpinNote } = useNotes();
   const { stats } = useNoteStats();
+  const { message } = App.useApp();
 
   const [searchValue, setSearchValue] = useState('');
 

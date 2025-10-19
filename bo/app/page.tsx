@@ -1,7 +1,7 @@
 "use client";
 import { useAuth } from '@/components/AuthProvider';
 import { useEffect, useState } from 'react';
-import { Typography, Button, Table, Space, Spin, message } from 'antd';
+import { Typography, Button, Table, Space, Spin } from 'antd';
 import Link from 'next/link';
 import { Member } from '@/types/member';
 import type { ColumnsType } from 'antd/es/table';

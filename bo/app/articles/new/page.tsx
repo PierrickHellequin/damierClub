@@ -10,7 +10,7 @@ import {
   Card,
   Space,
   Switch,
-  message,
+  App,
   Typography,
   Divider,
 } from 'antd';
@@ -35,6 +35,7 @@ export default function NewArticlePage() {
   const { createArticle } = useArticles();
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string>('');
+  const { message } = App.useApp();
 
   const handleEditorChange = (htmlContent: string) => {
     setContent(htmlContent);

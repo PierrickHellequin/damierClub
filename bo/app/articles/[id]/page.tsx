@@ -11,7 +11,7 @@ import {
   Spin,
   Descriptions,
   Popconfirm,
-  message,
+  App,
   Divider,
 } from 'antd';
 import {
@@ -50,6 +50,7 @@ export default function ArticleViewPage({
   const router = useRouter();
   const { article, loading: articleLoading } = useArticle(resolvedParams.id);
   const { deleteArticle, publishArticle, unpublishArticle, archiveArticle } = useArticles();
+  const { message } = App.useApp();
 
   const handleEdit = () => {
     router.push(`/articles/${resolvedParams.id}/edit`);

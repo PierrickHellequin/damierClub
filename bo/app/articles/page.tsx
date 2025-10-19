@@ -15,7 +15,7 @@ import {
   Col,
   Statistic,
   Dropdown,
-  message as antdMessage,
+  App,
   Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -55,6 +55,7 @@ export default function ArticlesPage() {
     sortBy: 'updatedAt',
     sortDirection: 'desc',
   });
+  const { message } = App.useApp();
 
   const {
     articles,
@@ -105,21 +106,21 @@ export default function ArticlesPage() {
   const handlePublish = async (id: string) => {
     const result = await publishArticle(id);
     if (result) {
-      antdMessage.success('Article publié');
+      message.success('Article publié');
     }
   };
 
   const handleUnpublish = async (id: string) => {
     const result = await unpublishArticle(id);
     if (result) {
-      antdMessage.success('Article dépublié');
+      message.success('Article dépublié');
     }
   };
 
   const handleArchive = async (id: string) => {
     const result = await archiveArticle(id);
     if (result) {
-      antdMessage.success('Article archivé');
+      message.success('Article archivé');
     }
   };
 
@@ -231,7 +232,7 @@ export default function ArticlesPage() {
           icon: <DeleteOutlined />,
           danger: true,
           onClick: () => {
-            antdMessage.warning({
+            message.warning({
               content: (
                 <Popconfirm
                   title="Êtes-vous sûr de vouloir supprimer cet article ?"
@@ -375,3 +376,4 @@ export default function ArticlesPage() {
     </div>
   );
 }
+

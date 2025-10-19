@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Card, Button, Tag, Space, Spin, Alert, Typography, Descriptions, message, Modal } from 'antd';
+import { Card, Button, Tag, Space, Spin, Alert, Typography, Descriptions, App, Modal } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, DeleteOutlined, PushpinOutlined, PushpinFilled } from '@ant-design/icons';
 import { useRouter, useParams } from 'next/navigation';
 import { useNote } from '../../../hooks/useNote';
@@ -17,6 +17,7 @@ export default function NoteViewPage() {
 
   const { note, loading, error } = useNote(id);
   const { deleteNote, pinNote, unpinNote } = useNotes();
+  const { message } = App.useApp();
 
   const handleEdit = () => {
     router.push(`/notes/${id}/edit`);

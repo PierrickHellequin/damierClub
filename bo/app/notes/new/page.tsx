@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Form, Input, Select, Button, Card, message, Switch, Row, Col } from 'antd';
+import { Form, Input, Select, Button, Card, App, Switch, Row, Col } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useNotes } from '../../../hooks/useNotes';
@@ -17,6 +17,7 @@ export default function NewNotePage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>(NoteColors[0]);
+  const { message } = App.useApp();
 
   const handleSubmit = async (values: any) => {
     setLoading(true);

@@ -10,7 +10,7 @@ import {
   Card,
   Space,
   Switch,
-  message,
+  App,
   Typography,
   Spin,
 } from 'antd';
@@ -42,6 +42,7 @@ export default function EditArticlePage({
   const { updateArticle } = useArticles();
   const [loading, setLoading] = useState(false);
   const [content, setContent] = useState<string>('');
+  const { message } = App.useApp();
 
   useEffect(() => {
     if (article) {

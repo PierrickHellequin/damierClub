@@ -41,6 +41,11 @@ export default function useArticles(initialFilters?: ArticleFilters): UseArticle
   const serializedInitialFiltersRef = useRef<string>(JSON.stringify(initialFilters ?? {}));
   const hasFetchedInitialRef = useRef(false);
   const { message: messageApi } = App.useApp();
+  const messageRef = useRef(messageApi);
+
+  useEffect(() => {
+    messageRef.current = messageApi;
+  }, [messageApi]);
 
   const fetchArticles = useCallback(async (filters: ArticleFilters = {}) => {
     try {
@@ -57,11 +62,11 @@ export default function useArticles(initialFilters?: ArticleFilters): UseArticle
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch articles';
       setError(errorMessage);
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
     } finally {
       setLoading(false);
     }
-  }, [messageApi]);
+  }, []);
 
   const fetchStats = useCallback(async () => {
     try {
@@ -75,16 +80,16 @@ export default function useArticles(initialFilters?: ArticleFilters): UseArticle
   const createArticle = useCallback(async (data: ArticleFormData): Promise<Article | null> => {
     try {
       const newArticle = await articleProvider.createArticle(data);
-      messageApi.success('Article créé avec succès');
+      messageRef.current?.success('Article créé avec succès');
       await fetchArticles();
       await fetchStats();
       return newArticle;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to create article';
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats, messageApi]);
+  }, [fetchArticles, fetchStats]);
 
   const updateArticle = useCallback(async (
     id: string,
@@ -92,70 +97,70 @@ export default function useArticles(initialFilters?: ArticleFilters): UseArticle
   ): Promise<Article | null> => {
     try {
       const updatedArticle = await articleProvider.updateArticle(id, data);
-      messageApi.success('Article modifié avec succès');
+      messageRef.current?.success('Article modifié avec succès');
       await fetchArticles();
       return updatedArticle;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to update article';
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, messageApi]);
+  }, [fetchArticles]);
 
   const deleteArticle = useCallback(async (id: string): Promise<void> => {
     try {
       await articleProvider.deleteArticle(id);
-      messageApi.success('Article supprimé avec succès');
+      messageRef.current?.success('Article supprimé avec succès');
       await fetchArticles();
       await fetchStats();
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete article';
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
       throw err;
     }
-  }, [fetchArticles, fetchStats, messageApi]);
+  }, [fetchArticles, fetchStats]);
 
   const publishArticle = useCallback(async (id: string): Promise<Article | null> => {
     try {
       const article = await articleProvider.publishArticle(id);
-      messageApi.success('Article publié avec succès');
+      messageRef.current?.success('Article publié avec succès');
       await fetchArticles();
       await fetchStats();
       return article;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to publish article';
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats, messageApi]);
+  }, [fetchArticles, fetchStats]);
 
   const unpublishArticle = useCallback(async (id: string): Promise<Article | null> => {
     try {
       const article = await articleProvider.unpublishArticle(id);
-      messageApi.success('Article dépublié avec succès');
+      messageRef.current?.success('Article dépublié avec succès');
       await fetchArticles();
       await fetchStats();
       return article;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to unpublish article';
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats, messageApi]);
+  }, [fetchArticles, fetchStats]);
 
   const archiveArticle = useCallback(async (id: string): Promise<Article | null> => {
     try {
       const article = await articleProvider.archiveArticle(id);
-      messageApi.success('Article archivé avec succès');
+      messageRef.current?.success('Article archivé avec succès');
       await fetchArticles();
       await fetchStats();
       return article;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to archive article';
-      messageApi.error(errorMessage);
+      messageRef.current?.error(errorMessage);
       return null;
     }
-  }, [fetchArticles, fetchStats, messageApi]);
+  }, [fetchArticles, fetchStats]);
 
   useEffect(() => {
     if (hasFetchedInitialRef.current) {
