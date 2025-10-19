@@ -94,7 +94,10 @@ export default function ArticleViewPage({
   if (articleLoading) {
     return (
       <div style={{ textAlign: 'center', padding: 100 }}>
-        <Spin size="large" tip="Chargement de l'article..." />
+        <Space direction="vertical" align="center">
+          <Spin size="large" />
+          <Text style={{ color: '#666' }}>Chargement de l'article...</Text>
+        </Space>
       </div>
     );
   }
