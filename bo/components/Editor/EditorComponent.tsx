@@ -18,6 +18,73 @@ import Embed from '@editorjs/embed';
 import Image from '@editorjs/image';
 import { Spin } from 'antd';
 
+const convertHtmlToEditorData = (html: string): OutputData => {
+  const defaultBlock = (text: string) => ({
+    id: `fallback-${Date.now()}`,
+    type: 'paragraph',
+    data: {
+      text,
+    },
+  });
+
+  if (!html || typeof window === 'undefined') {
+    return {
+      time: Date.now(),
+      blocks: [defaultBlock('')],
+      version: '2.28.0',
+    };
+  }
+
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const blocks: OutputData['blocks'] = [];
+
+    Array.from(doc.body.childNodes).forEach((node, index) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        const text = node.textContent?.trim();
+        if (text) {
+          blocks.push(defaultBlock(text));
+        }
+        return;
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as HTMLElement;
+        const inner = (element.innerHTML || element.textContent || '').trim();
+        if (!inner) {
+          return;
+        }
+
+        blocks.push({
+          id: `html-${index}-${Date.now()}`,
+          type: 'paragraph',
+          data: {
+            text: inner,
+          },
+        });
+      }
+    });
+
+    if (!blocks.length) {
+      blocks.push(defaultBlock(doc.body.textContent?.trim() || ''));
+    }
+
+    return {
+      time: Date.now(),
+      blocks,
+      version: '2.28.0',
+    };
+  } catch (error) {
+    console.warn('EditorComponent: failed to parse HTML, using raw fallback.', error);
+    return {
+      time: Date.now(),
+      blocks: [defaultBlock(html)],
+      version: '2.28.0',
+    };
+  }
+};
+
 interface EditorComponentProps {
   value?: string; // JSON string from Editor.js
   onChange?: (data: OutputData) => void;
@@ -25,12 +92,13 @@ interface EditorComponentProps {
   readOnly?: boolean;
 }
 
-export default function EditorComponent({
-  value,
-  onChange,
-  placeholder = 'Commencez à écrire votre article...',
-  readOnly = false,
-}: EditorComponentProps) {
+export default function EditorComponent(props: EditorComponentProps) {
+  const {
+    value,
+    onChange,
+    placeholder = 'Commencez a ecrire votre article...',
+    readOnly = false,
+  } = props;
   const editorRef = useRef<EditorJS | null>(null);
   const holderRef = useRef<HTMLDivElement>(null);
   const [isReady, setIsReady] = useState(false);
@@ -48,10 +116,18 @@ export default function EditorComponent({
 
         let initialData: OutputData | undefined;
         if (value) {
-          try {
-            initialData = JSON.parse(value);
-          } catch (e) {
-            console.error('Failed to parse editor data:', e);
+          const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+          const trimmedValue = stringValue.trim();
+
+          if (trimmedValue.startsWith('<')) {
+            initialData = convertHtmlToEditorData(trimmedValue);
+          } else {
+            try {
+              initialData = JSON.parse(trimmedValue);
+            } catch (e) {
+              console.warn('EditorComponent: provided initial value is not JSON. Falling back to HTML rendering.');
+              initialData = convertHtmlToEditorData(trimmedValue);
+            }
           }
         }
 
@@ -189,11 +265,20 @@ export default function EditorComponent({
   // Update editor data when value changes externally
   useEffect(() => {
     if (isReady && editorRef.current && value) {
+      const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+      const trimmedValue = stringValue.trim();
+
+      if (trimmedValue.startsWith('<')) {
+        editorRef.current.render(convertHtmlToEditorData(trimmedValue));
+        return;
+      }
+
       try {
-        const data = JSON.parse(value);
+        const data = JSON.parse(trimmedValue);
         editorRef.current.render(data);
       } catch (e) {
-        console.error('Failed to render editor data:', e);
+        console.warn('EditorComponent: failed to render JSON value, attempting HTML fallback.');
+        editorRef.current.render(convertHtmlToEditorData(trimmedValue));
       }
     }
   }, [value, isReady]);
@@ -208,7 +293,10 @@ export default function EditorComponent({
           transform: 'translate(-50%, -50%)',
           zIndex: 10,
         }}>
-          <Spin size="large" tip="Chargement de l'éditeur..." />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
+            <Spin size="large" />
+            <span style={{ color: '#666' }}>Chargement de l'editeur...</span>
+          </div>
         </div>
       )}
       <div

@@ -230,7 +230,7 @@ export default function ArticlesPage() {
           key: 'delete',
           label: 'Supprimer',
           icon: <DeleteOutlined />,
-          danger: true,
+          danger: false,
           onClick: () => {
             message.warning({
               content: (
@@ -248,7 +248,7 @@ export default function ArticlesPage() {
               duration: 0,
             });
           },
-        });
+        } as any);
 
         return (
           <Space>

@@ -50,18 +50,6 @@ public class NoteController {
         return ResponseEntity.ok(notes);
     }
 
-    @Operation(summary = "Récupérer une note par ID", description = "Récupère les détails d'une note spécifique")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Note trouvée"),
-        @ApiResponse(responseCode = "404", description = "Note non trouvée")
-    })
-    @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
-    public ResponseEntity<Note> getNoteById(@Parameter(description = "ID de la note") @PathVariable String id) {
-        Note note = noteService.getNoteById(id);
-        return ResponseEntity.ok(note);
-    }
-
     @Operation(summary = "Créer une nouvelle note", description = "Crée une nouvelle note personnelle")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Note créée avec succès"),
@@ -75,6 +63,52 @@ public class NoteController {
 
         Note createdNote = noteService.createNote(note, authorEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
+    }
+
+    @Operation(summary = "Récupérer les notes récentes", description = "Récupère les notes les plus récentes de l'utilisateur")
+    @ApiResponse(responseCode = "200", description = "Liste des notes récentes")
+    @GetMapping("/recent")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    public ResponseEntity<List<Note>> getRecentNotes(
+            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail,
+            @Parameter(description = "Nombre de notes à récupérer") @RequestParam(defaultValue = "5") int limit) {
+
+        List<Note> recentNotes = noteService.getRecentNotesByAuthor(authorEmail, limit);
+        return ResponseEntity.ok(recentNotes);
+    }
+
+    @Operation(summary = "Récupérer les notes épinglées", description = "Récupère toutes les notes épinglées de l'utilisateur")
+    @ApiResponse(responseCode = "200", description = "Liste des notes épinglées")
+    @GetMapping("/pinned")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    public ResponseEntity<List<Note>> getPinnedNotes(
+            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
+
+        List<Note> pinnedNotes = noteService.getPinnedNotesByAuthor(authorEmail);
+        return ResponseEntity.ok(pinnedNotes);
+    }
+
+    @Operation(summary = "Récupérer les statistiques des notes", description = "Récupère les statistiques des notes de l'utilisateur (total, épinglées, par visibilité)")
+    @ApiResponse(responseCode = "200", description = "Statistiques des notes")
+    @GetMapping("/stats")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    public ResponseEntity<NoteService.NoteStats> getNoteStats(
+            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
+
+        NoteService.NoteStats stats = noteService.getNoteStats(authorEmail);
+        return ResponseEntity.ok(stats);
+    }
+
+    @Operation(summary = "Récupérer une note par ID", description = "Récupère les détails d'une note spécifique")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Note trouvée"),
+        @ApiResponse(responseCode = "404", description = "Note non trouvée")
+    })
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    public ResponseEntity<Note> getNoteById(@Parameter(description = "ID de la note") @PathVariable String id) {
+        Note note = noteService.getNoteById(id);
+        return ResponseEntity.ok(note);
     }
 
     @Operation(summary = "Mettre à jour une note", description = "Met à jour une note existante")
@@ -120,39 +154,5 @@ public class NoteController {
     public ResponseEntity<Note> unpinNote(@Parameter(description = "ID de la note") @PathVariable String id) {
         Note unpinnedNote = noteService.unpinNote(id);
         return ResponseEntity.ok(unpinnedNote);
-    }
-
-    @Operation(summary = "Récupérer les notes récentes", description = "Récupère les notes les plus récentes de l'utilisateur")
-    @ApiResponse(responseCode = "200", description = "Liste des notes récentes")
-    @GetMapping("/recent")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
-    public ResponseEntity<List<Note>> getRecentNotes(
-            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail,
-            @Parameter(description = "Nombre de notes à récupérer") @RequestParam(defaultValue = "5") int limit) {
-
-        List<Note> recentNotes = noteService.getRecentNotesByAuthor(authorEmail, limit);
-        return ResponseEntity.ok(recentNotes);
-    }
-
-    @Operation(summary = "Récupérer les notes épinglées", description = "Récupère toutes les notes épinglées de l'utilisateur")
-    @ApiResponse(responseCode = "200", description = "Liste des notes épinglées")
-    @GetMapping("/pinned")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
-    public ResponseEntity<List<Note>> getPinnedNotes(
-            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
-
-        List<Note> pinnedNotes = noteService.getPinnedNotesByAuthor(authorEmail);
-        return ResponseEntity.ok(pinnedNotes);
-    }
-
-    @Operation(summary = "Récupérer les statistiques des notes", description = "Récupère les statistiques des notes de l'utilisateur (total, épinglées, par visibilité)")
-    @ApiResponse(responseCode = "200", description = "Statistiques des notes")
-    @GetMapping("/stats")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
-    public ResponseEntity<NoteService.NoteStats> getNoteStats(
-            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
-
-        NoteService.NoteStats stats = noteService.getNoteStats(authorEmail);
-        return ResponseEntity.ok(stats);
     }
 }

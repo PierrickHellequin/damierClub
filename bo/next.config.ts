@@ -11,12 +11,6 @@ const nextConfig: NextConfig = {
     maxInactiveAge: 25 * 1000,
     pagesBufferLength: 2,
   },
-  experimental: {
-    // Désactive le cache turbo pour forcer la recompilation
-    turbotrace: {
-      logLevel: 'error',
-    },
-  },
   // Headers pour forcer le navigateur à ne pas cacher
   async headers() {
     return [

@@ -37,7 +37,16 @@ public class HeaderAuthenticationFilter extends OncePerRequestFilter {
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             Member m = memberRepository.findByEmail(email);
             if (m != null) {
-                var auth = new UsernamePasswordAuthenticationToken(email, null, List.of(new SimpleGrantedAuthority(m.getRole())));
+                String role = (m.getRole() == null || m.getRole().isBlank()) ? "ROLE_USER" : m.getRole();
+                String trimmedRole = role.startsWith("ROLE_") ? role.substring(5) : role;
+                var auth = new UsernamePasswordAuthenticationToken(
+                        email,
+                        null,
+                        List.of(
+                                new SimpleGrantedAuthority(role),
+                                new SimpleGrantedAuthority(trimmedRole)
+                        )
+                );
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         }

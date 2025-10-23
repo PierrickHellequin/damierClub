@@ -54,10 +54,9 @@ services:
       - ./bo/cypress:/app/cypress:delegated
       - ./bo/styles:/app/styles:delegated
       - ./bo/package.json:/app/package.json:ro
-      - ./bo/tsconfig.json:/app/tsconfig.json:ro
+      - ./bo/tsconfig.json:/app/tsconfig.json
       - ./bo/next.config.ts:/app/next.config.ts:ro
       - ./bo/cypress.config.ts:/app/cypress.config.ts:ro
-      - ./bo/next-env.d.ts:/app/next-env.d.ts:ro
       # Named volumes for node_modules and .next (do not mount from Windows)
       - bo-node-modules:/app/node_modules
       - bo-next:/app/.next

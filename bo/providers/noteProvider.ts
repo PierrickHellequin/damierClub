@@ -45,10 +45,22 @@ const noteProvider = {
    * Create new note
    */
   async createNote(data: NoteFormData): Promise<Note> {
+    const payload: any = {
+      title: data.title,
+      content: data.content,
+      visibility: data.visibility,
+      pinned: data.pinned ?? false,
+      color: data.color,
+    };
+
+    if (data.clubId) {
+      payload.club = { id: data.clubId };
+    }
+
     return apiProvider.call<Note>({
       url: 'notes',
       method: 'POST',
-      body: data,
+      body: payload,
     });
   },
 
@@ -56,10 +68,24 @@ const noteProvider = {
    * Update note
    */
   async updateNote(id: string, data: Partial<NoteFormData>): Promise<Note> {
+    const payload: any = {
+      title: data.title,
+      content: data.content,
+      visibility: data.visibility,
+      pinned: data.pinned,
+      color: data.color,
+    };
+
+    if (data.clubId) {
+      payload.club = { id: data.clubId };
+    } else if (data.clubId === null) {
+      payload.club = null;
+    }
+
     return apiProvider.call<Note>({
       url: `notes/${id}`,
       method: 'PUT',
-      body: data,
+      body: payload,
     });
   },
 
