@@ -16,13 +16,18 @@ function getBase() {
 async function buildAuthHeaders(): Promise<Record<string, string>> {
   const raw =
     typeof window !== "undefined" ? localStorage.getItem("sessionUser") : null;
-  if (!raw) return {};
+  if (!raw) {
+    console.warn("No sessionUser found in localStorage");
+    return {};
+  }
   try {
     const user: Member = JSON.parse(raw);
+    console.log("Using email from localStorage:", user.email);
     return {
       "X-User-Email": user.email,
     };
-  } catch {
+  } catch (e) {
+    console.error("Failed to parse sessionUser:", e);
     return {};
   }
 }

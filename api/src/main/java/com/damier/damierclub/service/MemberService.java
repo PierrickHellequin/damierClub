@@ -56,7 +56,7 @@ public class MemberService {
     }
 
     public Optional<Member> findByEmail(String email) {
-        return Optional.ofNullable(memberRepository.findByEmail(email));
+        return memberRepository.findByEmail(email);
     }
 
     public boolean verifyPassword(Member member, String rawPassword) {

@@ -48,6 +48,10 @@ public interface NoteRepository extends JpaRepository<Note, String> {
     // Count by visibility
     long countByVisibility(NoteVisibility visibility);
 
+    // Count by author and visibility
+    @Query("SELECT COUNT(n) FROM Note n WHERE n.author.id = :authorId AND n.visibility = :visibility")
+    long countByAuthorIdAndVisibility(@Param("authorId") String authorId, @Param("visibility") NoteVisibility visibility);
+
     // Find recent notes by author
     @Query("SELECT n FROM Note n WHERE n.author.id = :authorId ORDER BY n.updatedAt DESC")
     List<Note> findRecentByAuthorId(@Param("authorId") String authorId, Pageable pageable);

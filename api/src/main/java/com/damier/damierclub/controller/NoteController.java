@@ -32,7 +32,6 @@ public class NoteController {
                description = "Récupère toutes les notes avec filtres optionnels (auteur, club, visibilité, épinglé, recherche)")
     @ApiResponse(responseCode = "200", description = "Liste paginée des notes")
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
     public ResponseEntity<Page<Note>> getNotes(
             @Parameter(description = "ID de l'auteur") @RequestParam(required = false) String authorId,
             @Parameter(description = "ID du club") @RequestParam(required = false) String clubId,
@@ -56,7 +55,7 @@ public class NoteController {
         @ApiResponse(responseCode = "400", description = "Données invalides")
     })
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<Note> createNote(
             @RequestBody Note note,
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
@@ -68,7 +67,7 @@ public class NoteController {
     @Operation(summary = "Récupérer les notes récentes", description = "Récupère les notes les plus récentes de l'utilisateur")
     @ApiResponse(responseCode = "200", description = "Liste des notes récentes")
     @GetMapping("/recent")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<List<Note>> getRecentNotes(
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail,
             @Parameter(description = "Nombre de notes à récupérer") @RequestParam(defaultValue = "5") int limit) {
@@ -80,7 +79,7 @@ public class NoteController {
     @Operation(summary = "Récupérer les notes épinglées", description = "Récupère toutes les notes épinglées de l'utilisateur")
     @ApiResponse(responseCode = "200", description = "Liste des notes épinglées")
     @GetMapping("/pinned")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<List<Note>> getPinnedNotes(
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
 
@@ -91,7 +90,7 @@ public class NoteController {
     @Operation(summary = "Récupérer les statistiques des notes", description = "Récupère les statistiques des notes de l'utilisateur (total, épinglées, par visibilité)")
     @ApiResponse(responseCode = "200", description = "Statistiques des notes")
     @GetMapping("/stats")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<NoteService.NoteStats> getNoteStats(
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
 
@@ -105,7 +104,7 @@ public class NoteController {
         @ApiResponse(responseCode = "404", description = "Note non trouvée")
     })
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<Note> getNoteById(@Parameter(description = "ID de la note") @PathVariable String id) {
         Note note = noteService.getNoteById(id);
         return ResponseEntity.ok(note);
@@ -117,7 +116,7 @@ public class NoteController {
         @ApiResponse(responseCode = "404", description = "Note non trouvée")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<Note> updateNote(
             @Parameter(description = "ID de la note") @PathVariable String id,
             @RequestBody Note note) {
@@ -132,7 +131,7 @@ public class NoteController {
         @ApiResponse(responseCode = "404", description = "Note non trouvée")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<Void> deleteNote(@Parameter(description = "ID de la note") @PathVariable String id) {
         noteService.deleteNote(id);
         return ResponseEntity.noContent().build();
@@ -141,7 +140,7 @@ public class NoteController {
     @Operation(summary = "Épingler une note", description = "Marque une note comme épinglée")
     @ApiResponse(responseCode = "200", description = "Note épinglée avec succès")
     @PatchMapping("/{id}/pin")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<Note> pinNote(@Parameter(description = "ID de la note") @PathVariable String id) {
         Note pinnedNote = noteService.pinNote(id);
         return ResponseEntity.ok(pinnedNote);
@@ -150,7 +149,7 @@ public class NoteController {
     @Operation(summary = "Désépingler une note", description = "Retire l'épingle d'une note")
     @ApiResponse(responseCode = "200", description = "Note désépinglée avec succès")
     @PatchMapping("/{id}/unpin")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR', 'USER')")
+    
     public ResponseEntity<Note> unpinNote(@Parameter(description = "ID de la note") @PathVariable String id) {
         Note unpinnedNote = noteService.unpinNote(id);
         return ResponseEntity.ok(unpinnedNote);

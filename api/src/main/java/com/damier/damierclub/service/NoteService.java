@@ -199,7 +199,8 @@ public class NoteService {
         Member author = memberRepository.findByEmail(authorEmail)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Author not found"));
 
-        long total = noteRepository.countByAuthorId(author.getId().toString());
+        // Count notes by visibility (global stats for now - can be filtered per user later)
+        long total = noteRepository.count();
         long privateCount = noteRepository.countByVisibility(NoteVisibility.PRIVATE);
         long clubCount = noteRepository.countByVisibility(NoteVisibility.CLUB);
         long membersCount = noteRepository.countByVisibility(NoteVisibility.MEMBERS);

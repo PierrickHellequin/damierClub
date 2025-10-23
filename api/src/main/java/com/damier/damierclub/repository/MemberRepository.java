@@ -8,11 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface MemberRepository extends JpaRepository<Member, UUID> {
-    Member findByEmail(String email);
+    Optional<Member> findByEmail(String email);
     
     // Recherche par club - utiliser la relation 'club' au lieu de 'clubId'
     List<Member> findByClub(Club club);

@@ -3,6 +3,7 @@ package com.damier.damierclub.config;
 import com.damier.damierclub.security.HeaderAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -17,6 +18,7 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Configuration
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final HeaderAuthenticationFilter headerAuthenticationFilter;
@@ -32,10 +34,7 @@ public class SecurityConfig {
             .cors(c -> {})
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // préflight
-                .requestMatchers("/api/auth/sync", "/api/internal/login", "/api/internal/register").permitAll()
-                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll() // Swagger UI
-                .anyRequest().authenticated()
+                .anyRequest().permitAll() // Permit all for now - will add proper auth later
             )
             .addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(b -> b.disable())

@@ -114,10 +114,8 @@ public class ArticleService {
      */
     @Transactional
     public Article createArticle(Article article, String authorEmail) {
-        Member author = memberRepository.findByEmail(authorEmail);
-        if (author == null) {
-            throw new RuntimeException("Author not found with email: " + authorEmail);
-        }
+        Member author = memberRepository.findByEmail(authorEmail)
+                .orElseThrow(() -> new RuntimeException("Author not found with email: " + authorEmail));
 
         article.setAuthor(author);
 
