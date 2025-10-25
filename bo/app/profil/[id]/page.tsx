@@ -41,6 +41,8 @@ export default function ProfilPage() {
     }
   }, [member, form]);
 
+  const isSuperAdmin = user?.role === 'SUPER_ADMIN';
+
   const startEdit = () => {
     if (!member) return;
     setEditing(true);
@@ -155,6 +157,7 @@ export default function ProfilPage() {
                 placeholder="Sélectionner un club"
                 allowClear
                 loading={clubsLoading}
+                disabled={!isSuperAdmin}
                 options={clubs.map(club => ({ value: club.id, label: club.name }))}
                 onChange={(clubId) => {
                   // Si on supprime le club, supprimer aussi le rôle

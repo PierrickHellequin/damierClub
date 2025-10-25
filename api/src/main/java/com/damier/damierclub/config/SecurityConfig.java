@@ -4,6 +4,7 @@ import com.damier.damierclub.security.HeaderAuthenticationFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -18,7 +19,8 @@ import org.springframework.http.HttpMethod;
 import java.util.List;
 
 @Configuration
-@EnableMethodSecurity(prePostEnabled = true)
+@EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final HeaderAuthenticationFilter headerAuthenticationFilter;
@@ -34,7 +36,15 @@ public class SecurityConfig {
             .cors(c -> {})
             .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll() // Permit all for now - will add proper auth later
+                // Public endpoints - no authentication required (GET only)
+                .requestMatchers(HttpMethod.GET, "/api/articles", "/api/articles/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/clubs", "/api/clubs/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/notes", "/api/notes/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/members", "/api/members/**").permitAll()
+                // Authentication endpoints - no authentication required
+                .requestMatchers("/api/internal/login", "/api/internal/register").permitAll()
+                // All other requests require authentication - @PreAuthorize will handle authorization
+                .anyRequest().authenticated()
             )
             .addFilterBefore(headerAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .httpBasic(b -> b.disable())

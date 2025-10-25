@@ -3,6 +3,7 @@ package com.damier.damierclub.controller;
 import com.damier.damierclub.model.Note;
 import com.damier.damierclub.model.Note.NoteVisibility;
 import com.damier.damierclub.service.NoteService;
+import com.damier.damierclub.service.AuthorizationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +28,9 @@ public class NoteController {
 
     @Autowired
     private NoteService noteService;
+
+    @Autowired
+    private AuthorizationService authorizationService;
 
     @Operation(summary = "Récupérer toutes les notes",
                description = "Récupère toutes les notes avec filtres optionnels (auteur, club, visibilité, épinglé, recherche)")
@@ -55,11 +59,13 @@ public class NoteController {
         @ApiResponse(responseCode = "400", description = "Données invalides")
     })
     @PostMapping
-    
     public ResponseEntity<Note> createNote(
             @RequestBody Note note,
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
-
+        // Check if user is authenticated
+        if (authorEmail == null || authorEmail.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         Note createdNote = noteService.createNote(note, authorEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdNote);
     }
@@ -67,7 +73,6 @@ public class NoteController {
     @Operation(summary = "Récupérer les notes récentes", description = "Récupère les notes les plus récentes de l'utilisateur")
     @ApiResponse(responseCode = "200", description = "Liste des notes récentes")
     @GetMapping("/recent")
-    
     public ResponseEntity<List<Note>> getRecentNotes(
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail,
             @Parameter(description = "Nombre de notes à récupérer") @RequestParam(defaultValue = "5") int limit) {
@@ -90,9 +95,9 @@ public class NoteController {
     @Operation(summary = "Récupérer les statistiques des notes", description = "Récupère les statistiques des notes de l'utilisateur (total, épinglées, par visibilité)")
     @ApiResponse(responseCode = "200", description = "Statistiques des notes")
     @GetMapping("/stats")
-    
+
     public ResponseEntity<NoteService.NoteStats> getNoteStats(
-            @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail) {
+            @Parameter(description = "Email de l'auteur") @RequestHeader(value = "X-User-Email", required = false) String authorEmail) {
 
         NoteService.NoteStats stats = noteService.getNoteStats(authorEmail);
         return ResponseEntity.ok(stats);

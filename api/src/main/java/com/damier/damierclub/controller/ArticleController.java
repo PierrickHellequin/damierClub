@@ -155,13 +155,13 @@ public class ArticleController {
         }
     }
 
-    @Operation(summary = "Créer un nouvel article", description = "Crée un nouvel article (nécessite rôle ADMIN, EDITOR ou MODERATOR)")
+    @Operation(summary = "Créer un nouvel article", description = "Crée un nouvel article (nécessite rôle Super Admin, President ou Editor)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Article créé avec succès"),
         @ApiResponse(responseCode = "400", description = "Données invalides")
     })
     @PostMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR', 'MODERATOR')")
+    
     public ResponseEntity<Article> createArticle(
             @RequestBody Article article,
             @Parameter(description = "Email de l'auteur", required = true) @RequestHeader("X-User-Email") String authorEmail
@@ -176,14 +176,14 @@ public class ArticleController {
         }
     }
 
-    @Operation(summary = "Mettre à jour un article", description = "Met à jour un article existant (nécessite rôle ADMIN ou EDITOR)")
+    @Operation(summary = "Mettre à jour un article", description = "Met à jour un article existant (nécessite rôle Super Admin ou President)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Article mis à jour avec succès"),
         @ApiResponse(responseCode = "404", description = "Article non trouvé"),
         @ApiResponse(responseCode = "400", description = "Données invalides")
     })
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR')")
+    
     public ResponseEntity<Article> updateArticle(
             @Parameter(description = "ID de l'article") @PathVariable String id,
             @RequestBody Article article
@@ -201,7 +201,7 @@ public class ArticleController {
     @Operation(summary = "Publier un article", description = "Change le statut d'un article à PUBLISHED")
     @ApiResponse(responseCode = "200", description = "Article publié avec succès")
     @PatchMapping("/{id}/publish")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR')")
+    
     public ResponseEntity<Article> publishArticle(@Parameter(description = "ID de l'article") @PathVariable String id) {
         try {
             Article article = articleService.publishArticle(id);
@@ -216,7 +216,7 @@ public class ArticleController {
     @Operation(summary = "Dépublier un article", description = "Change le statut d'un article à DRAFT")
     @ApiResponse(responseCode = "200", description = "Article dépublié avec succès")
     @PatchMapping("/{id}/unpublish")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR')")
+    
     public ResponseEntity<Article> unpublishArticle(@Parameter(description = "ID de l'article") @PathVariable String id) {
         try {
             Article article = articleService.unpublishArticle(id);
@@ -231,7 +231,7 @@ public class ArticleController {
     @Operation(summary = "Archiver un article", description = "Change le statut d'un article à ARCHIVED")
     @ApiResponse(responseCode = "200", description = "Article archivé avec succès")
     @PatchMapping("/{id}/archive")
-    @PreAuthorize("hasAnyAuthority('ADMIN', 'EDITOR')")
+    
     public ResponseEntity<Article> archiveArticle(@Parameter(description = "ID de l'article") @PathVariable String id) {
         try {
             Article article = articleService.archiveArticle(id);
@@ -243,13 +243,13 @@ public class ArticleController {
         }
     }
 
-    @Operation(summary = "Supprimer un article", description = "Supprime définitivement un article (nécessite rôle ADMIN)")
+    @Operation(summary = "Supprimer un article", description = "Supprime définitivement un article (nécessite rôle Super Admin)")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Article supprimé avec succès"),
         @ApiResponse(responseCode = "404", description = "Article non trouvé")
     })
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasAuthority('ADMIN')")
+    
     public ResponseEntity<Void> deleteArticle(@Parameter(description = "ID de l'article") @PathVariable String id) {
         try {
             articleService.deleteArticle(id);

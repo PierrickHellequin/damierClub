@@ -5,6 +5,7 @@ import com.damier.damierclub.model.Member;
 import com.damier.damierclub.repository.ClubRepository;
 import com.damier.damierclub.repository.MemberRepository;
 import com.damier.damierclub.service.MemberService;
+import com.damier.damierclub.service.AuthorizationService;
 import com.damier.damierclub.mapper.MemberMapper;
 import com.damier.damierclub.model.ClubRole;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,9 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -35,13 +39,16 @@ public class MemberController {
     private final MemberService memberService;
     private final ClubRepository clubRepository;
     private final MemberMapper memberMapper;
+    private final AuthorizationService authorizationService;
 
-    public MemberController(MemberRepository memberRepository, MemberService memberService, 
-                          ClubRepository clubRepository, MemberMapper memberMapper) {
+    public MemberController(MemberRepository memberRepository, MemberService memberService,
+                          ClubRepository clubRepository, MemberMapper memberMapper,
+                          AuthorizationService authorizationService) {
         this.memberRepository = memberRepository;
         this.memberService = memberService;
         this.clubRepository = clubRepository;
         this.memberMapper = memberMapper;
+        this.authorizationService = authorizationService;
     }
 
     @Operation(summary = "Récupérer tous les membres",
@@ -102,7 +109,10 @@ public class MemberController {
         @ApiResponse(responseCode = "400", description = "Données invalides")
     })
     @PostMapping
-    public MemberDTO createMember(@Valid @RequestBody MemberDTO memberDTO) {
+    
+    public MemberDTO createMember(
+            @Valid @RequestBody MemberDTO memberDTO,
+            @Parameter(description = "Email de l'utilisateur", required = true) @RequestHeader("X-User-Email") String userEmail) {
         Member member = memberMapper.createEntityFromDTO(memberDTO);
         Member saved = memberService.create(member);
         return memberMapper.toDTO(saved);
@@ -111,10 +121,15 @@ public class MemberController {
     @Operation(summary = "Mettre à jour un membre", description = "Met à jour les informations d'un membre existant")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Membre mis à jour avec succès"),
-        @ApiResponse(responseCode = "404", description = "Membre non trouvé")
+        @ApiResponse(responseCode = "404", description = "Membre non trouvé"),
+        @ApiResponse(responseCode = "403", description = "Non autorisé")
     })
     @PutMapping("/{id}")
-    public MemberDTO updateMember(@Parameter(description = "ID du membre") @PathVariable UUID id, @RequestBody MemberDTO memberDTO) {
+    
+    public MemberDTO updateMember(
+            @Parameter(description = "ID du membre") @PathVariable UUID id,
+            @RequestBody MemberDTO memberDTO,
+            @Parameter(description = "Email de l'utilisateur", required = true) @RequestHeader("X-User-Email") String userEmail) {
         return memberRepository.findById(id)
                 .map(existing -> {
                     memberMapper.updateEntityFromDTO(memberDTO, existing);
@@ -127,11 +142,16 @@ public class MemberController {
     @Operation(summary = "Supprimer un membre", description = "Supprime un membre de la base de données")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Membre supprimé avec succès"),
-        @ApiResponse(responseCode = "404", description = "Membre non trouvé")
+        @ApiResponse(responseCode = "404", description = "Membre non trouvé"),
+        @ApiResponse(responseCode = "403", description = "Non autorisé")
     })
     @DeleteMapping("/{id}")
-    public void deleteMember(@Parameter(description = "ID du membre") @PathVariable UUID id) {
+    
+    public ResponseEntity<Void> deleteMember(
+            @Parameter(description = "ID du membre") @PathVariable UUID id,
+            @Parameter(description = "Email de l'utilisateur", required = true) @RequestHeader("X-User-Email") String userEmail) {
         memberRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @Operation(summary = "Récupérer les membres actifs", description = "Récupère uniquement les membres actifs")

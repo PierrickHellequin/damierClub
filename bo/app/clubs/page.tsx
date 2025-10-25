@@ -3,16 +3,24 @@ import { useState } from 'react';
 import { Table, Typography, Space, Button, Drawer, Form, Input, App } from 'antd';
 import { Club } from '@/types/member';
 import useClubs from '@/hooks/useClubs';
+import { useAuthorization } from '@/hooks/useAuthorization';
+import { ProtectedAction } from '@/components/ProtectedAction/ProtectedAction';
 
 export default function ClubsPage() {
   const { message } = App.useApp();
   const { clubs, loading, total, createClub, updateClub, deleteClub } = useClubs({ enabled: true });
+  const auth = useAuthorization();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editing, setEditing] = useState<Club | null>(null);
   const [form] = Form.useForm<Club>();
   const [saving, setSaving] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
+
+  // Filtrer les clubs selon les droits
+  const visibleClubs = auth.isSuperAdmin
+    ? clubs
+    : clubs.filter(club => auth.canViewClub(club as any));
 
   const openCreate = () => {
     setEditing(null);
@@ -21,6 +29,10 @@ export default function ClubsPage() {
   };
 
   const openEdit = (club: Club) => {
+    if (!auth.canEditClub(club as any)) {
+      message.error('Vous n\'avez pas les droits de modifier ce club');
+      return;
+    }
     setEditing(club);
     form.setFieldsValue(club);
     setDrawerOpen(true);
@@ -59,12 +71,14 @@ export default function ClubsPage() {
       <Space direction="vertical" size="large" style={{ width: '100%' }}>
         <Space style={{ width: '100%', justifyContent: 'space-between' }}>
           <Typography.Title level={3} style={{ margin: 0 }}>Clubs</Typography.Title>
-          <Button type="primary" onClick={openCreate}>Ajouter un club</Button>
+          <ProtectedAction allowed={auth.canCreateClub} message="Seuls les super admins peuvent créer des clubs">
+            <Button type="primary" onClick={openCreate}>Ajouter un club</Button>
+          </ProtectedAction>
         </Space>
         <Table<Club>
           size="small"
           loading={loading}
-          dataSource={clubs}
+          dataSource={visibleClubs}
           rowKey={c => c.id}
           pagination={{
             current: page,
@@ -85,8 +99,12 @@ export default function ClubsPage() {
               title: 'Actions', width: 150,
               render: (_, record) => (
                 <Space size="small">
-                  <Button size="small" onClick={() => openEdit(record)}>Modifier</Button>
-                  <Button size="small" danger onClick={() => handleDelete(record)}>Supprimer</Button>
+                  <ProtectedAction allowed={auth.canEditClub(record as any)} message="Vous n'avez pas les droits de modifier ce club">
+                    <Button size="small" onClick={() => openEdit(record)}>Modifier</Button>
+                  </ProtectedAction>
+                  <ProtectedAction allowed={auth.canDeleteClub(record as any)} message="Vous n'avez pas les droits de supprimer ce club">
+                    <Button size="small" danger onClick={() => handleDelete(record)}>Supprimer</Button>
+                  </ProtectedAction>
                 </Space>
               )
             }
