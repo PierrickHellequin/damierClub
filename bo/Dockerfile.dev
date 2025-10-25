@@ -11,7 +11,7 @@ WORKDIR /app
 # Dependencies stage - install node_modules
 FROM base AS dependencies
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else pnpm install; fi
 
 # Development stage
 FROM base AS development

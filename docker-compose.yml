@@ -44,24 +44,27 @@ services:
       - PORT=3000
       - NEXT_PUBLIC_API_BASE=http://localhost:8090
     volumes:
-      # Selective bind mounts - only source code, not node_modules or .next
-      - ./bo/app:/app/app:delegated
-      - ./bo/components:/app/components:delegated
-      - ./bo/providers:/app/providers:delegated
-      - ./bo/hooks:/app/hooks:delegated
-      - ./bo/types:/app/types:delegated
-      - ./bo/public:/app/public:delegated
-      - ./bo/cypress:/app/cypress:delegated
-      - ./bo/styles:/app/styles:delegated
-      - ./bo/package.json:/app/package.json:ro
-      - ./bo/tsconfig.json:/app/tsconfig.json
-      - ./bo/next.config.ts:/app/next.config.ts:ro
-      - ./bo/cypress.config.ts:/app/cypress.config.ts:ro
+      # Bind mount all source code except node_modules and .next
+      - ./bo:/app
       # Named volumes for node_modules and .next (do not mount from Windows)
-      - bo-node-modules:/app/node_modules
-      - bo-next:/app/.next
+      - /app/node_modules
+      - /app/.next
     networks:
       - club-net
+    develop:
+      watch:
+        # Sync all code changes
+        - action: sync
+          path: ./bo
+          target: /app
+          ignore:
+            - node_modules/
+            - .next/
+            - .git/
+        # Rebuild on package.json or config changes
+        - action: sync+restart
+          path: ./bo/package.json
+          target: /app/package.json
 
 volumes:
   pgdata:

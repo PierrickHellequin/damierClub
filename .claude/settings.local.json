@@ -23,7 +23,11 @@
       "Bash(pnpm remove:*)",
       "Bash(pnpm add:*)",
       "Bash(make rebuild-bo-docker:*)",
-      "Bash(docker-compose rm:*)"
+      "Bash(docker-compose rm:*)",
+      "Read(//c/Users/pkhv/Downloads/Back Office Design for Club/src/components/**)",
+      "Read(//c/Users/pkhv/Downloads/Back Office Design for Club/**)",
+      "Bash(docker volume rm:*)",
+      "Bash(mv:*)"
     ],
     "deny": [],
     "ask": []

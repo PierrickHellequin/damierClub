@@ -4,18 +4,27 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Table,
+  Button,
+  Space,
   Tag,
   Popconfirm,
   Input,
-  Select as AntSelect,
+  Select,
+  Card,
+  Row,
+  Col,
+  Statistic,
   Dropdown,
   App,
+  Typography,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
+  PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
+  SearchOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   InboxOutlined,
@@ -34,12 +43,9 @@ import {
   ArticleStatusLabels,
   ArticleStatusColors,
 } from '../../types/article';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input as UIInput } from '@/components/ui/input';
-import { Plus, Search } from 'lucide-react';
 
-const { Search: AntSearch } = Input;
+const { Title } = Typography;
+const { Search } = Input;
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -125,15 +131,15 @@ export default function ArticlesPage() {
       key: 'title',
       width: '30%',
       render: (text: string, record: Article) => (
-        <div className="space-y-1">
+        <Space direction="vertical" size={0}>
           <a
             onClick={() => router.push(`/articles/${record.id}`)}
-            className="font-medium text-blue-600 hover:text-blue-700 cursor-pointer"
+            style={{ fontWeight: 500 }}
           >
             {text}
           </a>
           {record.featured && <Tag color="gold">À la une</Tag>}
-        </div>
+        </Space>
       ),
     },
     {
@@ -224,7 +230,7 @@ export default function ArticlesPage() {
           key: 'delete',
           label: 'Supprimer',
           icon: <DeleteOutlined />,
-          danger: true,
+          danger: false,
           onClick: () => {
             message.warning({
               content: (
@@ -234,9 +240,9 @@ export default function ArticlesPage() {
                   okText="Oui"
                   cancelText="Non"
                 >
-                  <button className="text-red-600 hover:text-red-700">
+                  <Button type="link" danger>
                     Confirmer la suppression
-                  </button>
+                  </Button>
                 </Popconfirm>
               ),
               duration: 0,
@@ -245,101 +251,80 @@ export default function ArticlesPage() {
         } as any);
 
         return (
-          <div className="flex gap-2">
-            <button
-              className="text-gray-600 hover:text-blue-600 p-1"
+          <Space>
+            <Button
+              type="text"
+              icon={<EditOutlined />}
               onClick={() => router.push(`/articles/${record.id}/edit`)}
-            >
-              <EditOutlined />
-            </button>
+            />
             <Dropdown menu={{ items: menuItems }} trigger={['click']}>
-              <button className="text-gray-600 hover:text-blue-600 p-1">
-                <MoreOutlined />
-              </button>
+              <Button type="text" icon={<MoreOutlined />} />
             </Dropdown>
-          </div>
+          </Space>
         );
       },
     },
   ];
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-gray-900">Gestion des Articles</h2>
-          <p className="text-gray-500 mt-1">Publications, actualités et tutoriels</p>
-        </div>
-        <Button
-          className="bg-blue-600 hover:bg-blue-700"
-          onClick={() => router.push('/articles/new')}
-        >
-          <Plus size={20} className="mr-2" />
-          Nouvel Article
-        </Button>
-      </div>
+    <div style={{ padding: 24 }}>
+      <Title level={2}>Articles</Title>
 
       {/* Statistics */}
       {stats && (
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Total</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats.total}</div>
-              <p className="text-xs text-gray-500 mt-1">Articles</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Publiés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats.published}</div>
-              <p className="text-xs text-green-600 mt-1">En ligne</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Brouillons</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats.draft}</div>
-              <p className="text-xs text-yellow-600 mt-1">En cours</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-gray-500">Archivés</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900">{stats.archived}</div>
-              <p className="text-xs text-gray-500 mt-1">Archivés</p>
-            </CardContent>
-          </Card>
-        </div>
+        <Row gutter={16} style={{ marginBottom: 24 }}>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Total"
+                value={stats.total}
+                valueStyle={{ color: '#1890ff' }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Publiés"
+                value={stats.published}
+                valueStyle={{ color: '#52c41a' }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Brouillons"
+                value={stats.draft}
+                valueStyle={{ color: '#faad14' }}
+              />
+            </Card>
+          </Col>
+          <Col span={6}>
+            <Card>
+              <Statistic
+                title="Archivés"
+                value={stats.archived}
+                valueStyle={{ color: '#8c8c8c' }}
+              />
+            </Card>
+          </Col>
+        </Row>
       )}
 
-      {/* Filters Card */}
       <Card>
-        <CardContent className="pt-6">
-          <div className="space-y-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-              <UIInput
+        {/* Filters */}
+        <Space style={{ marginBottom: 16, width: '100%' }} direction="vertical">
+          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+            <Space>
+              <Search
                 placeholder="Rechercher un article..."
-                className="pl-10"
-                onChange={(e) => handleSearch(e.target.value)}
+                allowClear
+                onSearch={handleSearch}
+                style={{ width: 300 }}
+                prefix={<SearchOutlined />}
               />
-            </div>
-
-            <div className="flex gap-4">
-              <AntSelect
+              <Select
                 placeholder="Statut"
                 allowClear
                 style={{ width: 150 }}
@@ -350,41 +335,45 @@ export default function ArticlesPage() {
                   { label: 'Archivé', value: 'ARCHIVED' },
                 ]}
               />
-              <AntSelect
+              <Select
                 placeholder="Catégorie"
                 allowClear
-                style={{ width: 200 }}
+                style={{ width: 150 }}
                 onChange={handleFilterCategory}
                 options={Object.entries(ArticleCategoryLabels).map(([value, label]) => ({
                   label,
                   value,
                 }))}
               />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </Space>
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => router.push('/articles/new')}
+            >
+              Nouvel Article
+            </Button>
+          </Space>
+        </Space>
 
-      {/* Table Card */}
-      <Card>
-        <CardContent className="pt-6">
-          <Table
-            columns={columns}
-            dataSource={articles}
-            loading={loading}
-            rowKey="id"
-            pagination={{
-              current: currentPage + 1,
-              pageSize: filters.size,
-              total: totalElements,
-              showSizeChanger: true,
-              showTotal: (total) => `Total: ${total} articles`,
-            }}
-            onChange={handleTableChange}
-            scroll={{ x: 1200 }}
-          />
-        </CardContent>
+        {/* Table */}
+        <Table
+          columns={columns}
+          dataSource={articles}
+          loading={loading}
+          rowKey="id"
+          pagination={{
+            current: currentPage + 1,
+            pageSize: filters.size,
+            total: totalElements,
+            showSizeChanger: true,
+            showTotal: (total) => `Total: ${total} articles`,
+          }}
+          onChange={handleTableChange}
+          scroll={{ x: 1200 }}
+        />
       </Card>
     </div>
   );
 }
+
