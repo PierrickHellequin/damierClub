@@ -1,11 +1,16 @@
 package com.damier.damierclub.controller;
 
 import com.damier.damierclub.dto.MemberDTO;
+import com.damier.damierclub.dto.MemberStatsDTO;
+import com.damier.damierclub.dto.PointsEvolutionDTO;
+import com.damier.damierclub.dto.TournamentParticipationDTO;
 import com.damier.damierclub.model.Member;
 import com.damier.damierclub.repository.ClubRepository;
 import com.damier.damierclub.repository.MemberRepository;
 import com.damier.damierclub.service.MemberService;
 import com.damier.damierclub.service.AuthorizationService;
+import com.damier.damierclub.service.MemberStatsService;
+import com.damier.damierclub.service.TournamentService;
 import com.damier.damierclub.mapper.MemberMapper;
 import com.damier.damierclub.model.ClubRole;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,15 +45,20 @@ public class MemberController {
     private final ClubRepository clubRepository;
     private final MemberMapper memberMapper;
     private final AuthorizationService authorizationService;
+    private final MemberStatsService memberStatsService;
+    private final TournamentService tournamentService;
 
     public MemberController(MemberRepository memberRepository, MemberService memberService,
                           ClubRepository clubRepository, MemberMapper memberMapper,
-                          AuthorizationService authorizationService) {
+                          AuthorizationService authorizationService, MemberStatsService memberStatsService,
+                          TournamentService tournamentService) {
         this.memberRepository = memberRepository;
         this.memberService = memberService;
         this.clubRepository = clubRepository;
         this.memberMapper = memberMapper;
         this.authorizationService = authorizationService;
+        this.memberStatsService = memberStatsService;
+        this.tournamentService = tournamentService;
     }
 
     @Operation(summary = "Récupérer tous les membres",
@@ -214,5 +224,37 @@ public class MemberController {
         } catch (IllegalArgumentException e) {
             return Map.of("count", 0L); // Retourne 0 si le rôle n'existe pas
         }
+    }
+
+    @Operation(summary = "Récupérer les statistiques d'un membre",
+               description = "Récupère les statistiques complètes d'un membre (tournois, victoires, défaites, points)")
+    @ApiResponse(responseCode = "200", description = "Statistiques du membre")
+    @GetMapping("/{id}/stats")
+    public ResponseEntity<MemberStatsDTO> getMemberStats(@Parameter(description = "ID du membre") @PathVariable UUID id) {
+        MemberStatsDTO stats = memberStatsService.getMemberStats(id);
+        return ResponseEntity.ok(stats);
+    }
+
+    @Operation(summary = "Récupérer l'évolution des points d'un membre",
+               description = "Récupère l'historique complet de l'évolution des points d'un membre")
+    @ApiResponse(responseCode = "200", description = "Historique de l'évolution des points")
+    @GetMapping("/{id}/points-evolution")
+    public ResponseEntity<List<PointsEvolutionDTO>> getMemberPointsEvolution(@Parameter(description = "ID du membre") @PathVariable UUID id) {
+        List<PointsEvolutionDTO> evolution = memberStatsService.getMemberPointsEvolution(id);
+        return ResponseEntity.ok(evolution);
+    }
+
+    @Operation(summary = "Récupérer les participations d'un membre aux tournois",
+               description = "Récupère la liste paginée des participations d'un membre aux tournois")
+    @ApiResponse(responseCode = "200", description = "Liste des participations du membre")
+    @GetMapping("/{id}/participations")
+    public ResponseEntity<Page<TournamentParticipationDTO>> getMemberParticipations(
+            @Parameter(description = "ID du membre") @PathVariable UUID id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<TournamentParticipationDTO> participations = tournamentService.getMemberParticipations(id, pageable);
+        return ResponseEntity.ok(participations);
     }
 }
