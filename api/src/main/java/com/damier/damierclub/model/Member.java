@@ -43,6 +43,11 @@ public class Member {
     private String gender;
     private Boolean active = true;
 
+    // Champs supplémentaires pour le profil complet
+    private LocalDate registrationDate; // Date d'inscription
+    private Integer currentPoints = 0; // Capital points actuel
+    private String licenceNumber; // Numéro de licence
+
     // Relation ManyToOne : un membre appartient à un club
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "club_id")
