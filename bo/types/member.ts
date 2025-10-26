@@ -35,6 +35,10 @@ export interface Member {
   birthDate?: string; // ISO string (YYYY-MM-DD)
   gender?: string; // 'M' | 'F' | 'Autre'
   active?: boolean;
+  // Champs supplémentaires pour profil complet
+  registrationDate?: string; // Date d'inscription (ISO string)
+  currentPoints?: number; // Capital points actuel
+  licenceNumber?: string; // Numéro de licence
   // Relations club
   club?: Pick<Club, "id"> | null; // Relation backend : objet avec id uniquement
   clubId?: number; // ID du club (pour formulaires)

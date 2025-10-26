@@ -64,4 +64,21 @@ export const apiProvider = {
     if (raw) return res as unknown as T;
     return res.json() as Promise<T>;
   },
+
+  // Helper methods
+  async get<T = any>(url: string, headers?: Record<string, string>): Promise<T> {
+    return this.call<T>({ url, method: "GET", headers });
+  },
+
+  async post<T = any>(url: string, body?: any, headers?: Record<string, string>): Promise<T> {
+    return this.call<T>({ url, method: "POST", body, headers });
+  },
+
+  async put<T = any>(url: string, body?: any, headers?: Record<string, string>): Promise<T> {
+    return this.call<T>({ url, method: "PUT", body, headers });
+  },
+
+  async delete<T = any>(url: string, headers?: Record<string, string>): Promise<T> {
+    return this.call<T>({ url, method: "DELETE", headers });
+  },
 };
