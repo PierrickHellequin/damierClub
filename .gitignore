@@ -58,3 +58,12 @@ coverage-final.json
 Thumbs.db
 ehthumbs.db
 NUL
+# Fichiers temporaires de parsing FFJD
+extract_ffjd_player.py
+import_ffjd_player_to_sql.py
+parse_html_to_sql.py
+update_sql_with_opponents.py
+player_6059_*.json
+player_6059_data*.sql
+!player_6059_data_complete.sql
+
