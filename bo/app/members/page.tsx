@@ -3,14 +3,25 @@ import { useState } from 'react';
 import { Member } from '@/types/member';
 import useMembers from '@/hooks/useMembers';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, MapPin, Mail, User } from 'lucide-react';
+import { Plus, Search, MapPin, Mail, User, Target, TrendingUp, Award, Eye, Edit } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function MembersPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
   const { members, loading, total } = useMembers({ enabled: true, page, pageSize });
@@ -39,13 +50,21 @@ export default function MembersPage() {
           <h2 className="text-2xl font-semibold text-gray-900">Gestion des Membres</h2>
           <p className="text-gray-500 mt-1">Liste des membres et leurs informations</p>
         </div>
+        <Button
+          className="bg-blue-600 hover:bg-blue-700"
+          onClick={() => router.push('/members/new')}
+        >
+          <Plus size={20} className="mr-2" />
+          Ajouter un membre
+        </Button>
       </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Total Membres</CardTitle>
+            <Target className="text-blue-600" size={20} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">{totalMembers}</div>
@@ -54,8 +73,9 @@ export default function MembersPage() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Actifs ce mois</CardTitle>
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">{activeThisMonth}</div>
@@ -64,8 +84,9 @@ export default function MembersPage() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Taux Moyen</CardTitle>
+            <TrendingUp className="text-blue-600" size={20} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">{averageRate}</div>
@@ -74,8 +95,9 @@ export default function MembersPage() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
             <CardTitle className="text-sm font-medium text-gray-500">Nouveaux</CardTitle>
+            <Award className="text-blue-600" size={20} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-gray-900">{Math.min(5, totalMembers)}</div>
@@ -101,7 +123,7 @@ export default function MembersPage() {
         </CardContent>
       </Card>
 
-      {/* Members Grid */}
+      {/* Members List */}
       {loading ? (
         <div className="flex justify-center py-12">
           <div className="text-gray-500">Chargement...</div>
@@ -113,61 +135,144 @@ export default function MembersPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredMembers.map((member) => {
-            const initials = (member.firstName?.charAt(0) || '') + (member.lastName?.charAt(0) || member.name?.charAt(0) || '?');
-            const fullName = member.firstName && member.lastName
-              ? `${member.firstName} ${member.lastName}`
-              : member.name || 'Sans nom';
+        <Card>
+          <CardHeader>
+            <CardTitle>Membres ({filteredMembers.length})</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="grid" className="w-full">
+              <TabsList className="grid w-full max-w-sm grid-cols-2 mb-6">
+                <TabsTrigger value="grid">Vue grille</TabsTrigger>
+                <TabsTrigger value="table">Vue tableau</TabsTrigger>
+              </TabsList>
 
-            return (
-              <Link key={member.id} href={`/profil/${member.id}`}>
-                <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start gap-4">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-blue-600 text-white font-semibold">
-                          {initials.toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+              <TabsContent value="grid">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredMembers.map((member) => {
+                    const initials = (member.firstName?.charAt(0) || '') + (member.lastName?.charAt(0) || member.name?.charAt(0) || '?');
+                    const fullName = member.firstName && member.lastName
+                      ? `${member.firstName} ${member.lastName}`
+                      : member.name || 'Sans nom';
 
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-900 truncate">{fullName}</h3>
-                        {member.name && member.firstName && (
-                          <p className="text-sm text-gray-500 truncate">@{member.name}</p>
-                        )}
+                    return (
+                      <Card key={member.id} className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => router.push(`/profil/${member.id}`)}>
+                        <CardContent className="pt-6">
+                          <div className="flex items-start gap-4">
+                            <Avatar className="h-12 w-12">
+                              <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                                {initials.toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
 
-                        <div className="mt-3 space-y-1.5">
-                          {member.email && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <Mail size={14} className="text-gray-400 flex-shrink-0" />
-                              <span className="truncate">{member.email}</span>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-gray-900 truncate">{fullName}</h3>
+                              {member.name && member.firstName && (
+                                <p className="text-sm text-gray-500 truncate">@{member.name}</p>
+                              )}
+
+                              <div className="mt-3 space-y-1.5">
+                                {member.email && (
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <Mail size={14} className="text-gray-400 flex-shrink-0" />
+                                    <span className="truncate">{member.email}</span>
+                                  </div>
+                                )}
+
+                                {member.city && (
+                                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                                    <MapPin size={14} className="text-gray-400 flex-shrink-0" />
+                                    <span className="truncate">{member.city}</span>
+                                  </div>
+                                )}
+
+                                {member.rate !== undefined && member.rate !== null && (
+                                  <div className="flex items-center gap-2 text-sm">
+                                    <Badge variant="secondary" className="bg-blue-100 text-blue-700">
+                                      ELO: {member.rate}
+                                    </Badge>
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                          )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </TabsContent>
 
-                          {member.city && (
-                            <div className="flex items-center gap-2 text-sm text-gray-600">
-                              <MapPin size={14} className="text-gray-400 flex-shrink-0" />
-                              <span className="truncate">{member.city}</span>
-                            </div>
-                          )}
+              <TabsContent value="table">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Membre</TableHead>
+                      <TableHead>Club</TableHead>
+                      <TableHead>Ville</TableHead>
+                      <TableHead>Points</TableHead>
+                      <TableHead>Statut</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMembers.map((member) => {
+                      const initials = (member.firstName?.charAt(0) || '') + (member.lastName?.charAt(0) || member.name?.charAt(0) || '?');
+                      const fullName = member.firstName && member.lastName
+                        ? `${member.firstName} ${member.lastName}`
+                        : member.name || 'Sans nom';
 
-                          {member.rate !== undefined && member.rate !== null && (
-                            <div className="flex items-center gap-2 text-sm">
-                              <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                ELO: {member.rate}
-                              </Badge>
+                      return (
+                        <TableRow key={member.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallback className="bg-blue-100 text-blue-600 font-semibold">
+                                  {initials.toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div>
+                                <div className="font-medium text-gray-900">{fullName}</div>
+                                <div className="text-sm text-gray-500">{member.email}</div>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+                          </TableCell>
+                          <TableCell className="text-gray-600">{member.clubName || '-'}</TableCell>
+                          <TableCell className="text-gray-600">{member.city || '-'}</TableCell>
+                          <TableCell className="font-medium text-gray-900">{member.rate !== undefined && member.rate !== null ? member.rate : '-'}</TableCell>
+                          <TableCell>
+                            <Badge
+                              className={member.active !== false ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-red-100 text-red-700 hover:bg-red-100'}
+                            >
+                              {member.active !== false ? 'Actif' : 'Inactif'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => router.push(`/profil/${member.id}`)}
+                              >
+                                <Eye size={16} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => router.push(`/members/edit/${member.id}`)}
+                              >
+                                <Edit size={16} />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       )}
 
       {/* Pagination */}
