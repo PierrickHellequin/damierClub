@@ -1,15 +1,13 @@
 "use client";
 import { useState } from 'react';
-import { Member } from '@/types/member';
 import useMembers from '@/hooks/useMembers';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, MapPin, Mail, User, Target, TrendingUp, Award, Eye, Edit } from 'lucide-react';
+import { Plus, Search, MapPin, Target, TrendingUp, Award, Eye, Edit } from 'lucide-react';
 import {
   Table,
   TableBody,
@@ -39,7 +37,7 @@ export default function MembersPage() {
   const totalMembers = filteredMembers.length;
   const activeThisMonth = Math.floor(totalMembers * 0.3); // Mock
   const averageRate = members.length > 0
-    ? (members.reduce((sum, m) => sum + (m.rate || 0), 0) / members.length).toFixed(0)
+    ? (members.reduce((sum, m) => sum + (m.currentPoints || 0), 0) / members.length).toFixed(0)
     : 0;
 
   return (
@@ -171,13 +169,6 @@ export default function MembersPage() {
                               )}
 
                               <div className="mt-3 space-y-1.5">
-                                {member.email && (
-                                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                                    <Mail size={14} className="text-gray-400 flex-shrink-0" />
-                                    <span className="truncate">{member.email}</span>
-                                  </div>
-                                )}
-
                                 {member.city && (
                                   <div className="flex items-center gap-2 text-sm text-gray-600">
                                     <MapPin size={14} className="text-gray-400 flex-shrink-0" />
@@ -185,10 +176,10 @@ export default function MembersPage() {
                                   </div>
                                 )}
 
-                                {member.rate !== undefined && member.rate !== null && (
+                                {member.currentPoints !== undefined && member.currentPoints !== null && (
                                   <div className="flex items-center gap-2 text-sm">
                                     <Badge variant="secondary" className="bg-blue-100 text-blue-700">
-                                      ELO: {member.rate}
+                                      ELO: {member.currentPoints}
                                     </Badge>
                                   </div>
                                 )}
@@ -232,13 +223,15 @@ export default function MembersPage() {
                               </Avatar>
                               <div>
                                 <div className="font-medium text-gray-900">{fullName}</div>
-                                <div className="text-sm text-gray-500">{member.email}</div>
+                                {member.ffjdId && (
+                                  <div className="text-sm text-gray-500">FFJD: {member.ffjdId}</div>
+                                )}
                               </div>
                             </div>
                           </TableCell>
                           <TableCell className="text-gray-600">{member.clubName || '-'}</TableCell>
                           <TableCell className="text-gray-600">{member.city || '-'}</TableCell>
-                          <TableCell className="font-medium text-gray-900">{member.rate !== undefined && member.rate !== null ? member.rate : '-'}</TableCell>
+                          <TableCell className="font-medium text-gray-900">{member.currentPoints !== undefined && member.currentPoints !== null ? member.currentPoints : '-'}</TableCell>
                           <TableCell>
                             <Badge
                               className={member.active !== false ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-red-100 text-red-700 hover:bg-red-100'}

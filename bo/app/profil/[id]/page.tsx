@@ -8,7 +8,6 @@ import useMemberParticipations from '@/hooks/useMemberParticipations';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/fr';
-import { useAuth } from '@/components/AuthProvider';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +15,6 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
   ArrowLeft,
   Edit,
-  Mail,
   Phone,
   MapPin,
   Calendar,
@@ -50,67 +48,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 dayjs.extend(relativeTime);
 dayjs.locale('fr');
 
-// Mock data for points evolution - in real app would come from API
-const mockPointsEvolutionData = [
-  { date: 'Jan 2024', points: 1620, tournoi: 'Open Paris', gain: 0 },
-  { date: 'Fév 2024', points: 1680, tournoi: 'Championnat IDF', gain: 60 },
-  { date: 'Mar 2024', points: 1720, tournoi: 'Blitz National', gain: 40 },
-  { date: 'Avr 2024', points: 1750, tournoi: 'Open Lyon', gain: 30 },
-  { date: 'Mai 2024', points: 1790, tournoi: 'Championnat France', gain: 40 },
-  { date: 'Juin 2024', points: 1850, tournoi: 'Open Marseille', gain: 60 },
-];
-
-// Mock tournament history - would come from API
-const mockTournamentsHistory = [
-  {
-    id: 1,
-    date: '15 Oct 2024',
-    type: 'Tournoi',
-    nom: 'Open International Paris',
-    categorie: 'Open',
-    place: '5ème',
-    points: -40,
-    victoires: 6,
-    defaites: 3,
-    nuls: 1,
-    games: [
-      { opponentName: 'Sophie Bernard', opponentPoints: 1820, result: 'WIN' as const, score: '2-0' },
-      { opponentName: 'Jean Martin', opponentPoints: 1750, result: 'LOSS' as const, score: '0-2' },
-      { opponentName: 'Paul Lefebvre', opponentPoints: 1680, result: 'DRAW' as const, score: '1-1' },
-    ],
-    pointsApres: 1850
-  },
-  {
-    id: 2,
-    date: '22 Sep 2024',
-    type: 'Championnat',
-    nom: 'Championnat Île-de-France',
-    categorie: 'Régional',
-    place: '3ème',
-    points: 20,
-    victoires: 8,
-    defaites: 2,
-    nuls: 0,
-    games: [
-      { opponentName: 'Thomas Blanc', opponentPoints: 1800, result: 'WIN' as const, score: '2-0' },
-      { opponentName: 'Julie Roux', opponentPoints: 1770, result: 'LOSS' as const, score: '0-2' },
-    ],
-    pointsApres: 1890
-  },
-];
-
-// Mock stats - would be calculated from tournaments
-const mockStatsData = [
-  { label: 'Victoires', value: 78, color: 'bg-green-100 text-green-700' },
-  { label: 'Défaites', value: 21, color: 'bg-red-100 text-red-700' },
-  { label: 'Nuls', value: 9, color: 'bg-gray-100 text-gray-700' },
-  { label: 'Taux victoire', value: '72%', color: 'bg-blue-100 text-blue-700' },
-];
-
 export default function ProfilPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useAuth();
   const idParam = params?.id;
   const id = typeof idParam === 'string' ? idParam : Array.isArray(idParam) ? idParam[0] : null;
   const { member, loading, error } = useMember(id);
@@ -129,7 +69,7 @@ export default function ProfilPage() {
     { label: 'Défaites', value: stats.totalDefeats, color: 'bg-red-100 text-red-700' },
     { label: 'Nuls', value: stats.totalDraws, color: 'bg-gray-100 text-gray-700' },
     { label: 'Taux victoire', value: `${stats.winRate.toFixed(1)}%`, color: 'bg-blue-100 text-blue-700' },
-  ] : mockStatsData;
+  ] : [];
 
   // Transformer l'évolution des points pour le graphique
   const pointsEvolutionData = evolution && evolution.length > 0
@@ -139,7 +79,7 @@ export default function ProfilPage() {
         tournoi: e.tournamentName || e.reason || '',
         gain: e.pointsChange,
       }))
-    : mockPointsEvolutionData;
+    : [];
 
   // Transformer les participations pour l'affichage
   const tournamentsHistory = participations && participations.length > 0
@@ -157,7 +97,7 @@ export default function ProfilPage() {
         games: p.games || [],
         pointsApres: p.pointsAfter || 0,
       }))
-    : mockTournamentsHistory;
+    : [];
 
   if (loading) {
     return (
@@ -237,13 +177,25 @@ export default function ProfilPage() {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-start gap-3">
-                  <Mail className="text-gray-400 mt-0.5" size={18} />
-                  <div>
-                    <div className="text-sm text-gray-500">Email</div>
-                    <div className="text-gray-900">{member.email}</div>
+                {member.ffjdId && (
+                  <div className="flex items-start gap-3">
+                    <Award className="text-gray-400 mt-0.5" size={18} />
+                    <div>
+                      <div className="text-sm text-gray-500">ID FFJD</div>
+                      <div className="text-gray-900">{member.ffjdId}</div>
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {member.licenceNumber && (
+                  <div className="flex items-start gap-3">
+                    <Award className="text-gray-400 mt-0.5" size={18} />
+                    <div>
+                      <div className="text-sm text-gray-500">Numéro de licence</div>
+                      <div className="text-gray-900">{member.licenceNumber}</div>
+                    </div>
+                  </div>
+                )}
 
                 {member.phone && (
                   <div className="flex items-start gap-3">
@@ -303,11 +255,14 @@ export default function ProfilPage() {
             </div>
 
             {/* Points Display */}
-            {member.rate !== null && member.rate !== undefined && (
+            {member.currentPoints !== null && member.currentPoints !== undefined && (
               <div className="text-center p-6 bg-blue-50 rounded-lg">
                 <Target className="text-blue-600 mx-auto mb-2" size={32} />
-                <div className="text-sm text-gray-500">Points actuels</div>
-                <div className="text-4xl font-bold text-blue-600 mt-1">{member.rate}</div>
+                <div className="text-sm text-gray-500">Points ELO</div>
+                <div className="text-4xl font-bold text-blue-600 mt-1">{member.currentPoints}</div>
+                {member.ffjdId && (
+                  <div className="text-xs text-gray-500 mt-2">FFJD: {member.ffjdId}</div>
+                )}
               </div>
             )}
           </div>
@@ -315,39 +270,46 @@ export default function ProfilPage() {
       </Card>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        {statsData.map((stat, index) => (
-          <Card key={index}>
-            <CardContent className="pt-6">
-              <div className="text-sm text-gray-500">{stat.label}</div>
-              <div className={`inline-block px-3 py-1 rounded-full mt-2 text-lg font-semibold ${stat.color}`}>
-                {stat.value}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+      {statsData.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          {statsData.map((stat, index) => (
+            <Card key={index}>
+              <CardContent className="pt-6">
+                <div className="text-sm text-gray-500">{stat.label}</div>
+                <div className={`inline-block px-3 py-1 rounded-full mt-2 text-lg font-semibold ${stat.color}`}>
+                  {stat.value}
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-gray-500 text-center">Aucune statistique disponible. Participez à des tournois pour voir vos statistiques.</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Points Evolution Chart */}
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Évolution des points</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">Progression par tournoi sur l'année 2024</p>
+      {pointsEvolutionData.length > 0 ? (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Évolution des points</CardTitle>
+                <p className="text-sm text-gray-500 mt-1">Progression par tournoi</p>
+              </div>
+              <Badge variant="outline" className="gap-2">
+                <TrendingUp size={16} className="text-green-600" />
+                {`${pointsEvolutionData[pointsEvolutionData.length - 1].points - pointsEvolutionData[0].points >= 0 ? '+' : ''}${pointsEvolutionData[pointsEvolutionData.length - 1].points - pointsEvolutionData[0].points} points`}
+              </Badge>
             </div>
-            <Badge variant="outline" className="gap-2">
-              <TrendingUp size={16} className="text-green-600" />
-              {pointsEvolutionData.length > 0
-                ? `${pointsEvolutionData[pointsEvolutionData.length - 1].points - pointsEvolutionData[0].points >= 0 ? '+' : ''}${pointsEvolutionData[pointsEvolutionData.length - 1].points - pointsEvolutionData[0].points} points`
-                : '0 points'}
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <ComposedChart data={pointsEvolutionData}>
+          </CardHeader>
+          <CardContent>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart data={pointsEvolutionData}>
                 <defs>
                   <linearGradient id="colorPoints" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1}/>
@@ -401,8 +363,10 @@ export default function ProfilPage() {
           </div>
         </CardContent>
       </Card>
+      ) : null}
 
       {/* Tournament History */}
+      {tournamentsHistory.length > 0 ? (
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -561,6 +525,13 @@ export default function ProfilPage() {
           </Tabs>
         </CardContent>
       </Card>
+      ) : (
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-gray-500 text-center">Aucun tournoi participé pour le moment.</p>
+          </CardContent>
+        </Card>
+      )}
 
     </div>
   );

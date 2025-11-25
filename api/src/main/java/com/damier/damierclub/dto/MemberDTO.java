@@ -23,6 +23,15 @@ public class MemberDTO {
     private ClubRole clubRole;
     private String role;
     private String password; // Pour création/modification
+
+    // Champs supplémentaires pour le profil complet
+    private LocalDate registrationDate; // Date d'inscription
+    private Integer currentPoints; // Capital points actuel (ELO)
+    private String licenceNumber; // Numéro de licence
+
+    // Données FFJD (Fédération Française de Jeu de Dames)
+    private String ffjdId; // ID du joueur sur le site FFJD
+    private Integer ranking; // Classement ELO du joueur
     
     // Club relation
     @JsonProperty("club")
