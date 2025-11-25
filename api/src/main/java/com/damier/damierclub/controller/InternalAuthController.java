@@ -22,8 +22,14 @@ public class InternalAuthController {
 
     public record RegisterRequest(@NotBlank String name, @Email String email, @NotBlank String password) {}
     public record LoginRequest(@Email String email, @NotBlank String password) {}
-    public record MemberDto(UUID id, String name, String email, String role) {
-        static MemberDto from(Member m){ return new MemberDto(m.getId(), m.getName(), m.getEmail(), m.getRole()); }
+    public record ClubRef(UUID id) {}
+    public record MemberDto(UUID id, String name, String email, String role, UUID clubId, ClubRef club, String clubRole) {
+        static MemberDto from(Member m){
+            UUID clubId = m.getClub() != null ? m.getClub().getId() : null;
+            ClubRef club = m.getClub() != null ? new ClubRef(m.getClub().getId()) : null;
+            String clubRole = m.getClubRole() != null ? m.getClubRole().name() : null;
+            return new MemberDto(m.getId(), m.getName(), m.getEmail(), m.getRole(), clubId, club, clubRole);
+        }
     }
 
     @PostMapping("/register")

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
-import { App, Drawer, Form, Input as AntInput } from 'antd';
+import { useRouter } from 'next/navigation';
+import { App } from 'antd';
 import { Club } from '@/types/member';
 import useClubs from '@/hooks/useClubs';
 import { useAuthorization } from '@/hooks/useAuthorization';
@@ -9,65 +10,47 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Search, Edit, Trash2, MapPin, Phone, Mail } from 'lucide-react';
+import { Plus, Search, Eye, Edit, Trash2, Users, MapPin, Phone, Mail } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function ClubsPage() {
+  const router = useRouter();
   const { message } = App.useApp();
-  const { clubs, loading, createClub, updateClub, deleteClub } = useClubs({ enabled: true });
+  const { clubs, loading, deleteClub } = useClubs({ enabled: true });
   const auth = useAuthorization();
-  const [drawerOpen, setDrawerOpen] = useState(false);
-  const [editing, setEditing] = useState<Club | null>(null);
-  const [form] = Form.useForm<Club>();
-  const [saving, setSaving] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
 
   // Filtrer les clubs selon les droits
+  console.log("🔐 Auth check - isSuperAdmin:", auth.isSuperAdmin, "clubs count:", clubs.length);
+  console.log("🔐 User clubId:", auth.userClubId);
+  clubs.forEach(club => {
+    console.log(`🏢 Club ${club.name} (${club.id}) - canView:`, auth.canViewClub(club as any));
+  });
   const visibleClubs = auth.isSuperAdmin
     ? clubs
     : clubs.filter(club => auth.canViewClub(club as any));
+  console.log("👁️ Visible clubs after auth filter:", visibleClubs.length);
 
-  // Filter clubs based on search
-  const filteredClubs = visibleClubs.filter(club =>
-    club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    club.city?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const openCreate = () => {
-    setEditing(null);
-    form.resetFields();
-    setDrawerOpen(true);
-  };
-
-  const openEdit = (club: Club) => {
-    if (!auth.canEditClub(club as any)) {
-      message.error('Vous n\'avez pas les droits de modifier ce club');
-      return;
-    }
-    setEditing(club);
-    form.setFieldsValue(club);
-    setDrawerOpen(true);
-  };
-
-  const closeDrawer = () => { setDrawerOpen(false); };
-
-  const submit = async () => {
-    try {
-      const values = await form.validateFields();
-      setSaving(true);
-      if (editing) {
-        await updateClub(editing.id, values);
-        message.success('Club mis à jour');
-      } else {
-        await createClub(values);
-        message.success('Club créé');
-      }
-      closeDrawer();
-    } catch (e: any) {
-      if (!e?.errorFields) message.error(e?.message || 'Erreur formulaire');
-    } finally { setSaving(false); }
-  };
+  // Filter clubs based on search and status
+  const filteredClubs = visibleClubs.filter(club => {
+    const matchesSearch = club.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      club.city?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || club.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+  console.log("🔍 Filtered clubs after search/status:", filteredClubs.length);
 
   const handleDelete = async (club: Club) => {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le club "${club.name}" ?`)) {
+      return;
+    }
     try {
       await deleteClub(club.id);
       message.success('Club supprimé');
@@ -78,8 +61,9 @@ export default function ClubsPage() {
 
   // Calculate stats
   const totalClubs = filteredClubs.length;
-  const activeClubs = filteredClubs.filter(c => c.name).length; // Mock active status
-  const totalMembers = 0; // Mock - would come from API
+  const activeClubs = filteredClubs.filter(c => c.status === 'actif').length;
+  const totalMembers = 0; // TODO: calculate from API
+  const averageMembers = totalClubs > 0 ? (totalMembers / totalClubs).toFixed(1) : 0;
 
   return (
     <div className="p-6 space-y-6">
@@ -92,7 +76,7 @@ export default function ClubsPage() {
         <ProtectedAction allowed={auth.canCreateClub} message="Seuls les super admins peuvent créer des clubs">
           <Button
             className="bg-blue-600 hover:bg-blue-700"
-            onClick={openCreate}
+            onClick={() => router.push('/clubs/new')}
           >
             <Plus size={20} className="mr-2" />
             Créer un club
@@ -137,13 +121,13 @@ export default function ClubsPage() {
             <CardTitle className="text-sm font-medium text-gray-500">Moyenne/Club</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{totalClubs > 0 ? (totalMembers / totalClubs).toFixed(1) : 0}</div>
+            <div className="text-2xl font-bold text-gray-900">{averageMembers}</div>
             <p className="text-xs text-gray-500 mt-1">Membres</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Search */}
+      {/* Search and Filters */}
       <Card>
         <CardContent className="pt-6">
           <div className="flex items-center gap-4">
@@ -156,6 +140,16 @@ export default function ClubsPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous les statuts</SelectItem>
+                <SelectItem value="actif">Actif</SelectItem>
+                <SelectItem value="inactif">Inactif</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -178,25 +172,35 @@ export default function ClubsPage() {
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
-                    <CardTitle className="text-lg">{club.name}</CardTitle>
-                    {club.city && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <MapPin size={14} className="text-gray-400" />
-                        <span className="text-sm text-gray-600">{club.city}</span>
-                      </div>
-                    )}
+                    <CardTitle className="text-lg font-semibold">{club.name}</CardTitle>
+                    <div className="flex items-center gap-2 mt-2">
+                      <MapPin size={14} className="text-gray-400" />
+                      <span className="text-sm text-gray-600">{club.city || '-'}</span>
+                    </div>
                   </div>
                   <Badge
-                    variant="default"
-                    className="bg-green-100 text-green-700"
+                    variant={club.status === 'actif' ? 'default' : 'secondary'}
+                    className={club.status === 'actif' ? 'bg-green-100 text-green-700 hover:bg-green-100' : 'bg-gray-100 text-gray-700 hover:bg-gray-100'}
                   >
-                    actif
+                    {club.status || 'actif'}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Club Info */}
+                <div className="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-gray-500">Président</div>
+                    <div className="text-gray-900 mt-0.5">{club.president || '-'}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500">Trésorier</div>
+                    <div className="text-gray-900 mt-0.5">{club.tresorier || '-'}</div>
+                  </div>
+                </div>
+
                 {/* Contact */}
-                <div className="space-y-2 text-sm">
+                <div className="space-y-2 text-sm pt-3 border-t border-gray-100">
                   {club.email && (
                     <div className="flex items-center gap-2 text-gray-600">
                       <Mail size={14} />
@@ -209,16 +213,29 @@ export default function ClubsPage() {
                       <span>{club.phone}</span>
                     </div>
                   )}
+                  <div className="flex items-center gap-2 text-gray-600">
+                    <Users size={14} />
+                    <span>0 membres</span>
+                  </div>
                 </div>
 
                 {/* Actions */}
                 <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => router.push(`/clubs/${club.id}`)}
+                  >
+                    <Eye size={14} className="mr-1.5" />
+                    Voir détails
+                  </Button>
                   <ProtectedAction allowed={auth.canEditClub(club as any)} message="Vous n'avez pas les droits de modifier ce club">
                     <Button
                       variant="ghost"
                       size="sm"
                       className="flex-1"
-                      onClick={() => openEdit(club)}
+                      onClick={() => router.push(`/clubs/${club.id}/edit`)}
                     >
                       <Edit size={14} className="mr-1.5" />
                       Modifier
@@ -228,7 +245,7 @@ export default function ClubsPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
                       onClick={() => handleDelete(club)}
                     >
                       <Trash2 size={14} />
@@ -241,46 +258,11 @@ export default function ClubsPage() {
         </div>
       )}
 
-      {/* Ant Design Drawer for Create/Edit Form */}
-      <Drawer
-        title={editing ? `Modifier ${editing.name}` : 'Nouveau club'}
-        open={drawerOpen}
-        onClose={closeDrawer}
-        width={420}
-        destroyOnClose
-        extra={
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={closeDrawer}>Annuler</Button>
-            <Button onClick={submit} disabled={saving}>
-              {saving ? 'Enregistrement...' : (editing ? 'Enregistrer' : 'Créer')}
-            </Button>
-          </div>
-        }
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Nom du club" rules={[{ required: true, message: 'Nom requis' }]}>
-            <AntInput />
-          </Form.Item>
-          <Form.Item name="email" label="Email" rules={[{ type: 'email', message: 'Email invalide' }]}>
-            <AntInput />
-          </Form.Item>
-          <Form.Item name="phone" label="Téléphone">
-            <AntInput />
-          </Form.Item>
-          <Form.Item name="address" label="Adresse">
-            <AntInput />
-          </Form.Item>
-          <Form.Item name="city" label="Ville">
-            <AntInput />
-          </Form.Item>
-          <Form.Item name="description" label="Description">
-            <AntInput.TextArea rows={3} />
-          </Form.Item>
-          <Form.Item name="logoUrl" label="URL du logo">
-            <AntInput placeholder="https://..." />
-          </Form.Item>
-        </Form>
-      </Drawer>
+      {filteredClubs.length === 0 && !loading && (
+        <div className="text-center py-12 text-gray-500">
+          Aucun club trouvé
+        </div>
+      )}
     </div>
   );
 }

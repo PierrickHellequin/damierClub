@@ -28,6 +28,7 @@ public class Club {
     private String phone;
     private String address;
     private String city;
+    private String website;
 
     @Column(name= "creation_date")
     private LocalDate creationDate;
@@ -37,6 +38,21 @@ public class Club {
 
     @Column(name = "logo_url")
     private String logoUrl;
+
+    // Statut du club : actif ou inactif
+    private String status;
+
+    // Bureau du club
+    private String president;
+
+    @Column(name = "vice_president")
+    private String vicePresident;
+
+    @Column(name = "tresorier")
+    private String tresorier;
+
+    @Column(name = "secretaire")
+    private String secretaire;
 
     // Relation OneToMany : un club a plusieurs membres
     @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)

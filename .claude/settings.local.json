@@ -27,7 +27,18 @@
       "Read(//c/Users/pkhv/Downloads/Back Office Design for Club/src/components/**)",
       "Read(//c/Users/pkhv/Downloads/Back Office Design for Club/**)",
       "Bash(docker volume rm:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(docker cp:*)",
+      "Bash(docker run:*)",
+      "Bash(docker-compose exec:*)",
+      "Bash(python -m json.tool:*)",
+      "Read(//c/tmp/**)",
+      "Bash(cat:*)",
+      "Bash(awk:*)",
+      "Bash(python update_sql_with_opponents.py:*)",
+      "Bash(python:*)",
+      "Bash(make db-reset:*)",
+      "Bash(git add:*)"
     ],
     "deny": [],
     "ask": []

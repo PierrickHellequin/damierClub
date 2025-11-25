@@ -58,12 +58,39 @@ coverage-final.json
 Thumbs.db
 ehthumbs.db
 NUL
-# Fichiers temporaires de parsing FFJD
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+
+# === Scripts FFJD ===
+# Logs et fichiers temporaires
+scripts/import_log.txt
+scripts/import_wattrelos_*.sql
+!scripts/import_wattrelos_final.py
+
+# Anciens scripts obsolètes
 extract_ffjd_player.py
 import_ffjd_player_to_sql.py
+parse_ffjd_complete.py
 parse_html_to_sql.py
 update_sql_with_opponents.py
-player_6059_*.json
-player_6059_data*.sql
-!player_6059_data_complete.sql
+player_*.html
+player_*.json
+player_*.sql
 
+# Documentation obsolète
+ARCHITECTURE_BO.md
+CHANGELOG.md
+GUIDE_TEST.md
+RESOLUTION_403.md
+diagnose-uuid.sh
+test-uuid-browser.html

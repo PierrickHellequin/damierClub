@@ -3,14 +3,19 @@ import { Club } from "@/types/member";
 import { useAuth } from "@/components/AuthProvider";
 import { clubProvider } from "@/providers/clubProvider";
 
-export default function useClub(id: number | null) {
+interface UseClubOptions {
+  enabled?: boolean;
+}
+
+export default function useClub(id: string | null, options?: UseClubOptions) {
   const { user } = useAuth();
   const [club, setClub] = useState<Club | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const enabled = options?.enabled !== false;
 
   const load = useCallback(async () => {
-    if (!user || !id) return;
+    if (!user || !id || !enabled) return;
     setLoading(true);
     setError(null);
     try {
@@ -21,7 +26,7 @@ export default function useClub(id: number | null) {
     } finally {
       setLoading(false);
     }
-  }, [user, id]);
+  }, [user, id, enabled]);
 
   useEffect(() => {
     load();

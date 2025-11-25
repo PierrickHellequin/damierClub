@@ -10,7 +10,15 @@ interface CallOptions {
 }
 
 function getBase() {
-  return process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8090";
+  // En SSR (côté serveur Docker), utiliser l'URL interne du conteneur
+  // En client (navigateur), utiliser localhost pour accéder via le port mappé
+  if (typeof window === 'undefined') {
+    // Server-side: utiliser le nom du service Docker
+    return process.env.NEXT_PUBLIC_API_BASE || "http://api:8080";
+  } else {
+    // Client-side: utiliser localhost
+    return process.env.NEXT_PUBLIC_API_BASE_BROWSER || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8090";
+  }
 }
 
 async function buildAuthHeaders(): Promise<Record<string, string>> {

@@ -1,11 +1,13 @@
 package com.damier.damierclub.controller;
 
+import com.damier.damierclub.dto.ClubStatsDTO;
 import com.damier.damierclub.model.Club;
 import com.damier.damierclub.model.Member;
 import com.damier.damierclub.model.ClubRole;
 import com.damier.damierclub.repository.ClubRepository;
 import com.damier.damierclub.repository.MemberRepository;
 import com.damier.damierclub.service.AuthorizationService;
+import com.damier.damierclub.service.ClubService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -32,11 +34,14 @@ public class ClubController {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final AuthorizationService authorizationService;
+    private final ClubService clubService;
 
-    public ClubController(ClubRepository clubRepository, MemberRepository memberRepository, AuthorizationService authorizationService) {
+    public ClubController(ClubRepository clubRepository, MemberRepository memberRepository,
+                         AuthorizationService authorizationService, ClubService clubService) {
         this.clubRepository = clubRepository;
         this.memberRepository = memberRepository;
         this.authorizationService = authorizationService;
+        this.clubService = clubService;
     }
 
     @Operation(summary = "Récupérer tous les clubs", description = "Récupère tous les clubs avec filtres optionnels par recherche textuelle et ville")
@@ -105,9 +110,15 @@ public class ClubController {
                     Optional.ofNullable(clubDetails.getPhone()).ifPresent(club::setPhone);
                     Optional.ofNullable(clubDetails.getAddress()).ifPresent(club::setAddress);
                     Optional.ofNullable(clubDetails.getCity()).ifPresent(club::setCity);
+                    Optional.ofNullable(clubDetails.getWebsite()).ifPresent(club::setWebsite);
                     Optional.ofNullable(clubDetails.getDescription()).ifPresent(club::setDescription);
                     Optional.ofNullable(clubDetails.getLogoUrl()).ifPresent(club::setLogoUrl);
                     Optional.ofNullable(clubDetails.getCreationDate()).ifPresent(club::setCreationDate);
+                    Optional.ofNullable(clubDetails.getStatus()).ifPresent(club::setStatus);
+                    Optional.ofNullable(clubDetails.getPresident()).ifPresent(club::setPresident);
+                    Optional.ofNullable(clubDetails.getVicePresident()).ifPresent(club::setVicePresident);
+                    Optional.ofNullable(clubDetails.getTresorier()).ifPresent(club::setTresorier);
+                    Optional.ofNullable(clubDetails.getSecretaire()).ifPresent(club::setSecretaire);
                     return clubRepository.save(club);
                 })
                 .map(ResponseEntity::ok)
@@ -269,5 +280,21 @@ public class ClubController {
 
         List<Member> members = memberRepository.findByClub_Id(clubId);
         return ResponseEntity.ok(members);
+    }
+
+    @Operation(summary = "Récupérer les statistiques d'un club", description = "Récupère les statistiques détaillées d'un club (membres, points, victoires)")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Statistiques du club récupérées"),
+        @ApiResponse(responseCode = "404", description = "Club non trouvé")
+    })
+    @GetMapping("/{clubId}/stats")
+    public ResponseEntity<ClubStatsDTO> getClubStats(
+            @Parameter(description = "ID du club") @PathVariable UUID clubId) {
+        try {
+            ClubStatsDTO stats = clubService.getClubStats(clubId);
+            return ResponseEntity.ok(stats);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

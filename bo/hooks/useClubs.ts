@@ -16,8 +16,8 @@ interface UseClubsResult {
   error: string | null;
   refetch: () => Promise<void>;
   createClub: (values: Partial<Club>) => Promise<Club | null>;
-  updateClub: (id: number, values: Partial<Club>) => Promise<Club | null>;
-  deleteClub: (id: number) => Promise<void>;
+  updateClub: (id: string, values: Partial<Club>) => Promise<Club | null>;
+  deleteClub: (id: string) => Promise<void>;
   total: number;
 }
 
@@ -58,7 +58,9 @@ export default function useClubs(
         sort: order,
       });
 
+      console.log("🔄 useClubs - Response:", resp);
       if (mounted.current) {
+        console.log("✅ useClubs - Setting clubs:", resp.data);
         setClubs(resp.data);
         setTotal(resp.total);
       }
@@ -88,7 +90,7 @@ export default function useClubs(
   );
 
   const updateClub = useCallback(
-    async (id: number, values: Partial<Club>) => {
+    async (id: string, values: Partial<Club>) => {
       if (!user) return null;
       const saved = await clubProvider.updateClub(id, values);
       await refetch();
@@ -98,7 +100,7 @@ export default function useClubs(
   );
 
   const deleteClub = useCallback(
-    async (id: number) => {
+    async (id: string) => {
       await clubProvider.deleteClub(id);
       await refetch();
     },

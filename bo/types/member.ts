@@ -1,13 +1,20 @@
 export interface Club {
-  id: number;
+  id: string; // UUID
   name: string;
   email?: string;
   phone?: string;
   address?: string;
   city?: string;
+  website?: string;
   creationDate?: string; // ISO date
   description?: string;
   logoUrl?: string;
+  status?: string; // 'actif' | 'inactif'
+  // Bureau du club
+  president?: string;
+  vicePresident?: string;
+  tresorier?: string;
+  secretaire?: string;
 }
 
 export enum ClubRole {
@@ -39,6 +46,8 @@ export interface Member {
   registrationDate?: string; // Date d'inscription (ISO string)
   currentPoints?: number; // Capital points actuel
   licenceNumber?: string; // Numéro de licence
+  ffjdId?: string; // ID FFJD du joueur
+  ranking?: number; // Classement ELO
   // Relations club
   club?: Pick<Club, "id"> | null; // Relation backend : objet avec id uniquement
   clubId?: number; // ID du club (pour formulaires)

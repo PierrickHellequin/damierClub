@@ -48,6 +48,11 @@ public class Member {
     private Integer currentPoints = 0; // Capital points actuel
     private String licenceNumber; // Numéro de licence
 
+    // Données FFJD (Fédération Française de Jeu de Dames)
+    @Column(unique = true)
+    private String ffjdId; // ID du joueur sur le site FFJD
+    private Integer ranking; // Classement ELO du joueur
+
     // Relation ManyToOne : un membre appartient à un club
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "club_id")
