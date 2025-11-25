@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, Users, FileText, Building2 } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { Spin } from 'antd';
+import NoteCard from '@/components/NoteCard/NoteCard';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import 'dayjs/locale/fr';
@@ -170,34 +171,15 @@ export default function DashboardPage() {
           <p className="text-sm text-gray-500 mt-1">Dernières notes créées</p>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {!notes || notes.length === 0 ? (
-              <p className="text-gray-500 text-center py-8">Aucune note disponible</p>
-            ) : (
-              notes.slice(0, 5).map((note) => (
-                <div key={note.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-2 h-2 rounded-full ${
-                      note.visibility === 'PRIVATE' ? 'bg-blue-500' :
-                      note.visibility === 'CLUB' ? 'bg-green-500' :
-                      'bg-gray-500'
-                    }`}></div>
-                    <div>
-                      <div className="font-medium text-gray-900">{note.title}</div>
-                      <p className="text-sm text-gray-500 mt-0.5">{dayjs(note.updatedAt).fromNow()}</p>
-                    </div>
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                    note.visibility === 'PRIVATE' ? 'bg-blue-100 text-blue-700' :
-                    note.visibility === 'CLUB' ? 'bg-green-100 text-green-700' :
-                    'bg-gray-100 text-gray-700'
-                  }`}>
-                    {note.visibility.toLowerCase()}
-                  </span>
-                </div>
-              ))
-            )}
-          </div>
+          {!notes || notes.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">Aucune note disponible</p>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {notes.slice(0, 4).map((note) => (
+                <NoteCard key={note.id} note={note} />
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

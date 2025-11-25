@@ -5,6 +5,7 @@ import { Form, Input, Select, Button, Card, App, Switch, Row, Col } from 'antd';
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
 import { useRouter } from 'next/navigation';
 import { useNotes } from '../../../hooks/useNotes';
+import useClubs from '../../../hooks/useClubs';
 import { NoteVisibility, NoteVisibilityLabels, NoteColors } from '../../../types/note';
 import type { NoteFormData } from '../../../types/note';
 
@@ -14,6 +15,7 @@ const { Option } = Select;
 export default function NewNotePage() {
   const router = useRouter();
   const { createNote } = useNotes();
+  const { clubs, loading: clubsLoading } = useClubs();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [selectedColor, setSelectedColor] = useState<string>(NoteColors[0]);
@@ -110,10 +112,16 @@ export default function NewNotePage() {
 
             <Col span={12}>
               <Form.Item label="Club" name="clubId">
-                <Select placeholder="Sélectionnez un club (optionnel)" allowClear>
-                  {/* TODO: Load clubs dynamically */}
-                  <Option value="club-1">Club 1</Option>
-                  <Option value="club-2">Club 2</Option>
+                <Select
+                  placeholder="Sélectionnez un club (optionnel)"
+                  allowClear
+                  loading={clubsLoading}
+                >
+                  {clubs.map((club) => (
+                    <Option key={club.id} value={club.id}>
+                      {club.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>

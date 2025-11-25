@@ -139,12 +139,23 @@ export default function ArticleViewPage({
               Dépublier
             </Button>
           )}
-          <Button
-            icon={<InboxOutlined />}
-            onClick={handleArchive}
-          >
-            Archiver
-          </Button>
+          {article.status === 'ARCHIVED' && (
+            <Button
+              type="primary"
+              icon={<CheckCircleOutlined />}
+              onClick={handlePublish}
+            >
+              Republier
+            </Button>
+          )}
+          {article.status !== 'ARCHIVED' && (
+            <Button
+              icon={<InboxOutlined />}
+              onClick={handleArchive}
+            >
+              Archiver
+            </Button>
+          )}
           <Button
             type="primary"
             icon={<EditOutlined />}
