@@ -42,7 +42,10 @@ services:
       - NODE_ENV=development
       - WATCHPACK_POLLING=true
       - PORT=3000
+      # Pour le navigateur (client-side) : utiliser localhost
       - NEXT_PUBLIC_API_BASE=http://localhost:8090
+      # Pour le serveur Next.js (server-side/SSR) : utiliser le nom du service Docker
+      - API_BASE_INTERNAL=http://api:8080
     volumes:
       # Bind mount all source code except node_modules and .next
       - ./bo:/app
