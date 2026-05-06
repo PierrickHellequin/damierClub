@@ -1,0 +1,111 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-paper text-ink font-serif antialiased;
+    background-image:
+      radial-gradient(rgba(26, 23, 20, 0.05) 1px, transparent 1px);
+    background-size: 4px 4px;
+    background-position: 0 0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight text-ink;
+    font-feature-settings: "lnum", "kern";
+  }
+
+  ::selection {
+    background-color: theme("colors.accent.red");
+    color: theme("colors.paper.DEFAULT");
+  }
+
+  /* Subtle paper grain on cards */
+  .paper-grain {
+    background-image:
+      radial-gradient(rgba(26, 23, 20, 0.06) 1px, transparent 1px);
+    background-size: 3px 3px;
+  }
+}
+
+@layer components {
+  /* Newspaper-style horizontal rule with bowtie ornament in the middle */
+  .ornament-rule {
+    @apply relative flex items-center justify-center my-10;
+  }
+  .ornament-rule::before,
+  .ornament-rule::after {
+    content: "";
+    @apply flex-1 border-t border-rule;
+  }
+  .ornament-rule .ornament {
+    @apply mx-4 text-rule;
+  }
+
+  /* Drop cap for article first letter */
+  .drop-cap::first-letter {
+    @apply font-display text-7xl leading-[0.85] float-left mr-3 mt-1 text-accent-red;
+    font-feature-settings: "smcp";
+  }
+
+  /* Horizontal checkered band — references jeu de dames */
+  .checkered-band {
+    background-image:
+      linear-gradient(45deg, theme("colors.ink.DEFAULT") 25%, transparent 25%),
+      linear-gradient(-45deg, theme("colors.ink.DEFAULT") 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, theme("colors.ink.DEFAULT") 75%),
+      linear-gradient(-45deg, transparent 75%, theme("colors.ink.DEFAULT") 75%);
+    background-size: 14px 14px;
+    background-position: 0 0, 0 7px, 7px -7px, -7px 0;
+  }
+
+  /* Article rich content — newspaper styling */
+  .prose-paper {
+    @apply text-ink leading-relaxed text-[1.05rem];
+  }
+  .prose-paper p {
+    @apply mb-5;
+  }
+  .prose-paper h1, .prose-paper h2, .prose-paper h3 {
+    @apply font-display text-ink mb-3 mt-8;
+  }
+  .prose-paper h2 {
+    @apply text-3xl;
+  }
+  .prose-paper h3 {
+    @apply text-2xl;
+  }
+  .prose-paper a {
+    @apply text-accent-red underline decoration-1 underline-offset-4 hover:bg-accent-red/10;
+  }
+  .prose-paper blockquote {
+    @apply pl-6 border-l-2 border-accent-red italic text-ink-soft my-6;
+  }
+  .prose-paper ul {
+    @apply list-disc pl-6 mb-5;
+  }
+  .prose-paper ol {
+    @apply list-decimal pl-6 mb-5;
+  }
+  .prose-paper li {
+    @apply mb-1;
+  }
+  .prose-paper img {
+    @apply my-6 border border-ink/15;
+  }
+  .prose-paper code {
+    @apply font-meta bg-paper-deep px-1.5 py-0.5 text-sm border border-rule;
+  }
+  .prose-paper hr {
+    @apply my-10 border-rule;
+  }
+}
