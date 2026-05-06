@@ -7,11 +7,13 @@
 
 ## Services
 
-| Service | Port | URL | Credentials |
-|---------|------|-----|-------------|
-| API | 8090 | http://localhost:8090 | - |
-| Back Office | 3000 | http://localhost:3000 | pkhv@hotmail.fr / 123456 |
-| PostgreSQL | 5433 | localhost:5433 | clubuser / clubpass / clubdames |
+| Service | Port | URL |
+|---------|------|-----|
+| API | 8090 | http://localhost:8090 |
+| Back Office | 3000 | http://localhost:3000 |
+| PostgreSQL | 5433 | localhost:5433 |
+
+> Les identifiants de dev (admin BO, utilisateur PostgreSQL, etc.) sont définis dans le fichier `.env` local (non versionné). Voir `.env.example` pour le gabarit.
 
 **Authentification** : Header `X-User-Email`
 

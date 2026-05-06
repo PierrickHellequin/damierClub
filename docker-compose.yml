@@ -3,9 +3,9 @@ services:
     image: postgres:17.5-alpine
     container_name: club-db
     environment:
-      POSTGRES_DB: clubdames
-      POSTGRES_USER: clubuser
-      POSTGRES_PASSWORD: clubpass
+      POSTGRES_DB: ${POSTGRES_DB:-clubdames}
+      POSTGRES_USER: ${POSTGRES_USER:-clubuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
     ports:
       - "5433:5432"
     volumes:
@@ -22,9 +22,9 @@ services:
     ports:
       - "8090:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/clubdames
-      SPRING_DATASOURCE_USERNAME: clubuser
-      SPRING_DATASOURCE_PASSWORD: clubpass
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-clubdames}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-clubuser}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set in .env}
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     networks:
       - club-net

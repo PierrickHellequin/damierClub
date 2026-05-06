@@ -78,7 +78,7 @@ make up-all
 
 # Tester la connexion
 # - Ouvrir http://localhost:3000/login
-# - Se connecter avec pkhv@hotmail.fr / 123456
+# - Se connecter avec un utilisateur de dev (voir .env)
 # - Vérifier dans l'onglet Network :
 #   ✅ Le mot de passe ne doit PAS apparaître dans les requêtes
 #   ✅ Un cookie 'user-email' doit être présent

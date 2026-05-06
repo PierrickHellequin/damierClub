@@ -7,7 +7,7 @@
 Après implémentation, **les Server Actions Next.js n'empêchent PAS l'exposition des credentials dans le réseau**. Dans l'onglet Network, on voit toujours :
 
 ```
-Payload: ["pkhv@hotmail.fr", "123456"]
+Payload: ["user@example.com", "<password-en-clair>"]
 ```
 
 **Pourquoi ?** Les Server Actions transmettent les paramètres de fonction comme payload de la requête. Le navigateur voit toujours les données.
