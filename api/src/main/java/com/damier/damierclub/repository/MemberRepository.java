@@ -26,4 +26,7 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     // Recherche par rôle dans le club
     List<Member> findByClubRole(String clubRole);
     List<Member> findByClubAndClubRole(Club club, String clubRole);
+
+    long countByClub_Id(UUID clubId);
+    long countByActiveTrue();
 }

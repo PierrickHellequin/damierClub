@@ -61,6 +61,18 @@ public interface ArticleRepository extends JpaRepository<Article, String> {
     Page<Article> searchArticles(@Param("searchTerm") String searchTerm, Pageable pageable);
 
     /**
+     * Search articles filtered by status (used by the public API to expose only PUBLISHED).
+     */
+    @Query("SELECT a FROM Article a WHERE a.status = :status AND (" +
+           "LOWER(a.title) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR " +
+           "LOWER(a.excerpt) LIKE LOWER(CONCAT('%', :searchTerm, '%')))")
+    Page<Article> searchArticlesByStatus(@Param("searchTerm") String searchTerm,
+                                         @Param("status") ArticleStatus status,
+                                         Pageable pageable);
+
+    Optional<Article> findBySlugAndStatus(String slug, ArticleStatus status);
+
+    /**
      * Get recent articles (ordered by publishedAt)
      */
     @Query("SELECT a FROM Article a WHERE a.status = :status ORDER BY a.publishedAt DESC")

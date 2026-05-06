@@ -108,6 +108,25 @@ PUT    /api/members/{id}             # Modifier membre
 DELETE /api/members/{id}             # Supprimer membre
 ```
 
+### API publique (`/api/public/**`) — pour le site vitrine
+
+Tous les endpoints sont en **lecture seule** et **sans authentification**.
+Ils n'exposent **jamais** les drafts, les mots de passe, les emails, les téléphones ou les notes privées.
+
+```bash
+GET /api/public/articles?page&size&category&search   # Liste paginée des PUBLISHED
+GET /api/public/articles/featured                    # Articles en vedette
+GET /api/public/articles/recent?limit=5              # Derniers publiés
+GET /api/public/articles/categories                  # Liste des catégories
+GET /api/public/articles/{slug}                      # Détail (incrémente viewCount)
+GET /api/public/clubs?page&size                      # Liste des clubs
+GET /api/public/clubs/{id}                           # Détail public d'un club
+GET /api/public/stats                                # Compteurs globaux (clubs/membres/articles)
+```
+
+CORS sur `/api/public/**` est ouvert (`*`), GET/HEAD/OPTIONS uniquement.
+Les origines pour les autres routes sont configurables via `APP_CORS_ALLOWED_ORIGINS` (CSV).
+
 ## Configuration importante
 
 ### Frontend - docker-compose.yml

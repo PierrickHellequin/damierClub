@@ -69,6 +69,28 @@ services:
           path: ./bo/package.json
           target: /app/package.json
 
+  # Site public (à activer une fois le scaffolding du dossier ./front/ effectué)
+  # front:
+  #   build:
+  #     context: ./front
+  #     dockerfile: Dockerfile.dev
+  #   container_name: club-front
+  #   depends_on:
+  #     - api
+  #   ports:
+  #     - "3001:3000"
+  #   environment:
+  #     - NODE_ENV=development
+  #     - PORT=3000
+  #     - NEXT_PUBLIC_API_BASE=http://localhost:8090
+  #     - API_BASE_INTERNAL=http://api:8080
+  #   volumes:
+  #     - ./front:/app
+  #     - /app/node_modules
+  #     - /app/.next
+  #   networks:
+  #     - club-net
+
 volumes:
   pgdata:
   bo-node-modules:
