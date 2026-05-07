@@ -4,6 +4,7 @@ import type {
   PublicArticleSummary,
   PublicClub,
   PublicClubSummary,
+  PublicExercise,
   PublicStats,
   SpringPage,
 } from "@/types/api";
@@ -98,6 +99,10 @@ export const publicApi = {
 
   stats() {
     return apiGet<PublicStats>("/api/public/stats", { revalidate: 300 });
+  },
+
+  listExercises() {
+    return apiGet<PublicExercise[]>("/api/public/exercises", { revalidate: 300 });
   },
 };
 

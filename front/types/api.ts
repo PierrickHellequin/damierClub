@@ -56,6 +56,20 @@ export interface PublicStats {
   totalPublishedArticles: number;
 }
 
+export type ExerciseDifficulty = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
+
+export interface PublicExercise {
+  id: string;
+  title: string;
+  description: string | null;
+  /** 50-char encoded board, see lib/dames/notation.ts. */
+  position: string;
+  sideToPlay: "white" | "black";
+  difficulty: ExerciseDifficulty;
+  solution: string | null;
+  publishedAt: string | null;
+}
+
 // Spring Page<T> shape
 export interface SpringPage<T> {
   content: T[];

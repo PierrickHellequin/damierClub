@@ -5,8 +5,10 @@ import com.damier.damierclub.dto.PublicArticleSummaryDTO;
 import com.damier.damierclub.dto.PublicAuthorDTO;
 import com.damier.damierclub.dto.PublicClubDTO;
 import com.damier.damierclub.dto.PublicClubSummaryDTO;
+import com.damier.damierclub.dto.PublicExerciseDTO;
 import com.damier.damierclub.model.Article;
 import com.damier.damierclub.model.Club;
+import com.damier.damierclub.model.Exercise;
 import com.damier.damierclub.model.Member;
 
 public final class PublicMapper {
@@ -80,6 +82,20 @@ public final class PublicMapper {
             club.getSecretaire(),
             club.getTresorier(),
             membersCount
+        );
+    }
+
+    public static PublicExerciseDTO toExercise(Exercise ex) {
+        if (ex == null) return null;
+        return new PublicExerciseDTO(
+            ex.getId() != null ? ex.getId().toString() : null,
+            ex.getTitle(),
+            ex.getDescription(),
+            ex.getPosition(),
+            ex.getSideToPlay() == Exercise.Side.BLACK ? "black" : "white",
+            ex.getDifficulty(),
+            ex.getSolution(),
+            ex.getPublishedAt()
         );
     }
 }

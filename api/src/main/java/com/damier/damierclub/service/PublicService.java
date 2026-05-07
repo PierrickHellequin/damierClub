@@ -4,14 +4,17 @@ import com.damier.damierclub.dto.PublicArticleDTO;
 import com.damier.damierclub.dto.PublicArticleSummaryDTO;
 import com.damier.damierclub.dto.PublicClubDTO;
 import com.damier.damierclub.dto.PublicClubSummaryDTO;
+import com.damier.damierclub.dto.PublicExerciseDTO;
 import com.damier.damierclub.dto.PublicStatsDTO;
 import com.damier.damierclub.mapper.PublicMapper;
 import com.damier.damierclub.model.Article;
 import com.damier.damierclub.model.Article.ArticleCategory;
 import com.damier.damierclub.model.Article.ArticleStatus;
 import com.damier.damierclub.model.Club;
+import com.damier.damierclub.model.Exercise;
 import com.damier.damierclub.repository.ArticleRepository;
 import com.damier.damierclub.repository.ClubRepository;
+import com.damier.damierclub.repository.ExerciseRepository;
 import com.damier.damierclub.repository.MemberRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,13 +37,16 @@ public class PublicService {
     private final ArticleRepository articleRepository;
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
+    private final ExerciseRepository exerciseRepository;
 
     public PublicService(ArticleRepository articleRepository,
                          ClubRepository clubRepository,
-                         MemberRepository memberRepository) {
+                         MemberRepository memberRepository,
+                         ExerciseRepository exerciseRepository) {
         this.articleRepository = articleRepository;
         this.clubRepository = clubRepository;
         this.memberRepository = memberRepository;
+        this.exerciseRepository = exerciseRepository;
     }
 
     public Page<PublicArticleSummaryDTO> listArticles(int page, int size,
@@ -102,5 +108,13 @@ public class PublicService {
             memberRepository.countByActiveTrue(),
             articleRepository.countByStatus(ArticleStatus.PUBLISHED)
         );
+    }
+
+    public List<PublicExerciseDTO> listPublishedExercises() {
+        return exerciseRepository
+            .findByStatusOrderByDifficultyAscPublishedAtDesc(Exercise.Status.PUBLISHED)
+            .stream()
+            .map(PublicMapper::toExercise)
+            .toList();
     }
 }

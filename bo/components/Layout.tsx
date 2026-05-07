@@ -8,6 +8,7 @@ import {
   Calendar,
   Users,
   Building2,
+  Crown,
   Search,
   Bell,
   Settings,
@@ -37,6 +38,7 @@ const menuItems = [
   { id: 'clubs', label: 'Clubs', icon: Building2, href: '/clubs' },
   { id: 'members', label: 'Membres', icon: Users, href: '/members' },
   { id: 'articles', label: 'Articles', icon: FileText, href: '/articles' },
+  { id: 'exercises', label: 'Exercices damier', icon: Crown, href: '/exercises' },
   { id: 'notes', label: 'Notes internes', icon: StickyNote, href: '/notes' },
 ];
 
