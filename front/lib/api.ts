@@ -4,8 +4,12 @@ import type {
   PublicArticleSummary,
   PublicClub,
   PublicClubSummary,
+  PublicEloPoint,
   PublicExercise,
+  PublicPlayer,
+  PublicPlayerSummary,
   PublicStats,
+  PublicTournamentResult,
   SpringPage,
 } from "@/types/api";
 
@@ -103,6 +107,39 @@ export const publicApi = {
 
   listExercises() {
     return apiGet<PublicExercise[]>("/api/public/exercises", { revalidate: 300 });
+  },
+
+  listPlayers(params: { page?: number; size?: number; clubId?: string } = {}) {
+    return apiGet<SpringPage<PublicPlayerSummary>>("/api/public/players", {
+      query: {
+        page: params.page,
+        size: params.size,
+        clubId: params.clubId,
+      },
+    });
+  },
+
+  topPlayers(limit = 10) {
+    return apiGet<PublicPlayerSummary[]>("/api/public/players/top", {
+      query: { limit },
+      revalidate: 600,
+    });
+  },
+
+  playerById(id: string) {
+    return apiGet<PublicPlayer>(`/api/public/players/${encodeURIComponent(id)}`);
+  },
+
+  playerEloHistory(id: string) {
+    return apiGet<PublicEloPoint[]>(
+      `/api/public/players/${encodeURIComponent(id)}/elo-history`,
+    );
+  },
+
+  playerTournaments(id: string) {
+    return apiGet<PublicTournamentResult[]>(
+      `/api/public/players/${encodeURIComponent(id)}/tournaments`,
+    );
   },
 };
 

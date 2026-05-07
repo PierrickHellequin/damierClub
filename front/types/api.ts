@@ -78,6 +78,70 @@ export interface PublicExercise {
   publishedAt: string | null;
 }
 
+export type ClubRole = "PRESIDENT" | "VICE_PRESIDENT" | "SECRETAIRE" | "TRESORIER" | "MEMBRE";
+
+export interface PublicPlayerSummary {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+  city: string | null;
+  currentPoints: number | null;
+  ranking: number | null;
+  ffjdId: string | null;
+  clubId: string | null;
+  clubName: string | null;
+}
+
+export interface PublicPlayer extends PublicPlayerSummary {
+  registrationDate: string | null;
+  clubRole: ClubRole | null;
+  totalTournaments: number;
+  totalVictories: number;
+  totalDefeats: number;
+  totalDraws: number;
+  winRate: number | null;
+  highestPoints: number | null;
+  lowestPoints: number | null;
+}
+
+export interface PublicEloPoint {
+  date: string;
+  points: number;
+  pointsChange: number;
+  label: string | null;
+}
+
+export type TournamentType =
+  | "TOURNOI"
+  | "OPEN"
+  | "CHAMPIONNAT"
+  | "AMICAL"
+  | "INTERCLUBS";
+
+export type TournamentCategory =
+  | "OPEN"
+  | "JEUNES"
+  | "FEMININ"
+  | "VETERAN"
+  | "REGIONAL"
+  | "NATIONAL"
+  | "INTERNATIONAL";
+
+export interface PublicTournamentResult {
+  tournamentId: string | null;
+  tournamentName: string | null;
+  tournamentDate: string | null;
+  tournamentType: TournamentType | null;
+  tournamentCategory: TournamentCategory | null;
+  tournamentLocation: string | null;
+  place: string | null;
+  pointsChange: number | null;
+  pointsAfter: number | null;
+  victories: number | null;
+  defeats: number | null;
+  draws: number | null;
+}
+
 // Spring Page<T> shape
 export interface SpringPage<T> {
   content: T[];

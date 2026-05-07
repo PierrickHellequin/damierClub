@@ -3,11 +3,13 @@ import { Container } from "@/components/Container";
 import { ArticleCard } from "@/components/ArticleCard";
 import { ClubCard } from "@/components/ClubCard";
 import { OrnamentRule } from "@/components/Ornament";
+import { PlayerCard } from "@/components/PlayerCard";
 import { StatBlock } from "@/components/StatBlock";
 import { publicApi, safe } from "@/lib/api";
 import type {
   PublicArticleSummary,
   PublicClubSummary,
+  PublicPlayerSummary,
   PublicStats,
 } from "@/types/api";
 
@@ -32,11 +34,12 @@ const EMPTY_STATS: PublicStats = {
 };
 
 export default async function HomePage() {
-  const [recent, featured, clubsPage, stats] = await Promise.all([
+  const [recent, featured, clubsPage, stats, topPlayers] = await Promise.all([
     safe(publicApi.recentArticles(6), [] as PublicArticleSummary[]),
     safe(publicApi.featuredArticles(), [] as PublicArticleSummary[]),
     safe(publicApi.listClubs({ size: 6 }), EMPTY_CLUBS_PAGE),
     safe(publicApi.stats(), EMPTY_STATS),
+    safe(publicApi.topPlayers(3), [] as PublicPlayerSummary[]),
   ]);
 
   const lead = featured[0] ?? recent[0];
@@ -103,7 +106,7 @@ export default async function HomePage() {
             href="/clubs"
             className="text-[0.7rem] font-meta uppercase tracking-[0.2em] text-accent-red hover:underline"
           >
-            Voir tout l'annuaire →
+            {`Voir tout l'annuaire →`}
           </Link>
         </div>
         {clubsPage.content.length > 0 ? (
@@ -116,6 +119,29 @@ export default async function HomePage() {
           <p className="mt-6 text-ink-soft">Aucun club enregistré pour le moment.</p>
         )}
       </Container>
+
+      {topPlayers.length > 0 ? (
+        <Container className="pb-14">
+          <div className="flex items-end justify-between gap-4">
+            <SectionTitle
+              eyebrow="Hall of fame"
+              title="Au sommet du classement"
+              className="mb-0"
+            />
+            <Link
+              href="/joueurs"
+              className="text-[0.7rem] font-meta uppercase tracking-[0.2em] text-accent-red hover:underline"
+            >
+              {`Voir tous les joueurs →`}
+            </Link>
+          </div>
+          <div className="mt-6 grid gap-3 lg:grid-cols-3">
+            {topPlayers.slice(0, 3).map((p, i) => (
+              <PlayerCard key={p.id} player={p} rank={i + 1} />
+            ))}
+          </div>
+        </Container>
+      ) : null}
     </>
   );
 }

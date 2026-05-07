@@ -29,4 +29,8 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
 
     long countByClub_Id(UUID clubId);
     long countByActiveTrue();
+
+    Page<Member> findByActiveTrue(Pageable pageable);
+    Page<Member> findByActiveTrueAndClub_Id(UUID clubId, Pageable pageable);
+    List<Member> findTop20ByActiveTrueOrderByCurrentPointsDesc();
 }

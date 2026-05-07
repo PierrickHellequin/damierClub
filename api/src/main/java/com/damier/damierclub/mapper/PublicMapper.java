@@ -6,11 +6,17 @@ import com.damier.damierclub.dto.PublicArticleSummaryDTO;
 import com.damier.damierclub.dto.PublicAuthorDTO;
 import com.damier.damierclub.dto.PublicClubDTO;
 import com.damier.damierclub.dto.PublicClubSummaryDTO;
+import com.damier.damierclub.dto.PublicEloPointDTO;
 import com.damier.damierclub.dto.PublicExerciseDTO;
+import com.damier.damierclub.dto.PublicPlayerDTO;
+import com.damier.damierclub.dto.PublicPlayerSummaryDTO;
+import com.damier.damierclub.dto.PublicTournamentResultDTO;
 import com.damier.damierclub.model.Article;
 import com.damier.damierclub.model.Club;
 import com.damier.damierclub.model.Exercise;
 import com.damier.damierclub.model.Member;
+import com.damier.damierclub.model.PointsHistory;
+import com.damier.damierclub.model.TournamentParticipation;
 
 import java.util.List;
 
@@ -100,6 +106,85 @@ public final class PublicMapper {
             ex.getSolution(),
             solutionMoves == null || solutionMoves.isEmpty() ? null : solutionMoves,
             ex.getPublishedAt()
+        );
+    }
+
+    public static PublicPlayerSummaryDTO toPlayerSummary(Member m) {
+        if (m == null) return null;
+        Club club = m.getClub();
+        return new PublicPlayerSummaryDTO(
+            m.getId(),
+            m.getFirstName(),
+            m.getLastName(),
+            m.getCity(),
+            m.getCurrentPoints(),
+            m.getRanking(),
+            m.getFfjdId(),
+            club != null ? club.getId() : null,
+            club != null ? club.getName() : null
+        );
+    }
+
+    public static PublicPlayerDTO toPlayer(
+        Member m,
+        long totalTournaments,
+        long totalVictories,
+        long totalDefeats,
+        long totalDraws,
+        Double winRate,
+        Integer highestPoints,
+        Integer lowestPoints
+    ) {
+        if (m == null) return null;
+        Club club = m.getClub();
+        return new PublicPlayerDTO(
+            m.getId(),
+            m.getFirstName(),
+            m.getLastName(),
+            m.getCity(),
+            m.getCurrentPoints(),
+            m.getRanking(),
+            m.getFfjdId(),
+            m.getRegistrationDate(),
+            m.getClubRole(),
+            club != null ? club.getId() : null,
+            club != null ? club.getName() : null,
+            totalTournaments,
+            totalVictories,
+            totalDefeats,
+            totalDraws,
+            winRate,
+            highestPoints,
+            lowestPoints
+        );
+    }
+
+    public static PublicEloPointDTO toEloPoint(PointsHistory h) {
+        if (h == null) return null;
+        String label = h.getTournament() != null ? h.getTournament().getName() : h.getReason();
+        return new PublicEloPointDTO(
+            h.getChangedAt(),
+            h.getPointsAfter(),
+            h.getPointsChange(),
+            label
+        );
+    }
+
+    public static PublicTournamentResultDTO toTournamentResult(TournamentParticipation tp) {
+        if (tp == null) return null;
+        return new PublicTournamentResultDTO(
+            tp.getTournament() != null ? tp.getTournament().getId() : null,
+            tp.getTournament() != null ? tp.getTournament().getName() : null,
+            tp.getTournament() != null ? tp.getTournament().getStartDate() : null,
+            tp.getTournament() != null ? tp.getTournament().getType() : null,
+            tp.getTournament() != null ? tp.getTournament().getCategory() : null,
+            tp.getTournament() != null ? tp.getTournament().getLocation() : null,
+            tp.getPlace(),
+            tp.getPointsChange(),
+            tp.getPointsAfter(),
+            tp.getVictories(),
+            tp.getDefeats(),
+            tp.getDraws()
         );
     }
 }
