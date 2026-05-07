@@ -4,7 +4,7 @@ import { useCallback, useMemo, useReducer } from "react";
 import { newGame } from "./game";
 import { applyMove, checkOutcome, legalMoves } from "./rules";
 import { opposite } from "./types";
-import type { Color, GameState, Move, Position } from "./types";
+import type { Board, Color, GameState, Move, Position } from "./types";
 
 type Selection =
   | { kind: "none" }
@@ -13,6 +13,8 @@ type Selection =
 interface InternalState {
   game: GameState;
   selection: Selection;
+  /** Board *before* the last move was applied. null when no move has been played yet. */
+  prevBoard: Board | null;
 }
 
 type Action =
@@ -37,7 +39,8 @@ function reducer(state: InternalState, action: Action): InternalState {
     case "deselect":
       return { ...state, selection: { kind: "none" } };
     case "play": {
-      const board = applyMove(state.game.board, action.move);
+      const before = state.game.board;
+      const board = applyMove(before, action.move);
       const next: Color = opposite(state.game.turn);
       const outcome = checkOutcome(board, next);
       return {
@@ -48,6 +51,7 @@ function reducer(state: InternalState, action: Action): InternalState {
           outcome,
         },
         selection: { kind: "none" },
+        prevBoard: before,
       };
     }
     case "undo": {
@@ -64,10 +68,14 @@ function reducer(state: InternalState, action: Action): InternalState {
           outcome: checkOutcome(b, next),
         };
       }
-      return { game: g, selection: { kind: "none" } };
+      return { game: g, selection: { kind: "none" }, prevBoard: null };
     }
     case "reset":
-      return { game: action.initial ?? newGame(), selection: { kind: "none" } };
+      return {
+        game: action.initial ?? newGame(),
+        selection: { kind: "none" },
+        prevBoard: null,
+      };
   }
 }
 
@@ -75,6 +83,7 @@ export function useGame(initial?: GameState) {
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     game: initial ?? newGame(),
     selection: { kind: "none" } as Selection,
+    prevBoard: null,
   }));
 
   const allLegal = useMemo(
@@ -115,6 +124,7 @@ export function useGame(initial?: GameState) {
   return {
     state: state.game,
     selection: state.selection,
+    prevBoard: state.prevBoard,
     targets,
     movableSquares,
     select,

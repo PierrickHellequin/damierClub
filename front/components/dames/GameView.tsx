@@ -35,6 +35,7 @@ export function GameView({
   const {
     state,
     selection,
+    prevBoard,
     targets,
     movableSquares,
     select,
@@ -140,6 +141,7 @@ export function GameView({
           onPickTarget={handlePickTarget}
           flipped={flipped}
           lastMove={lastMove}
+          prevBoard={prevBoard}
         />
         <Controls
           canUndo={canUndo}

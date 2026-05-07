@@ -50,6 +50,7 @@ export function ExerciseRunner({
   const {
     state,
     selection,
+    prevBoard,
     targets,
     movableSquares,
     select,
@@ -263,6 +264,7 @@ export function ExerciseRunner({
           onPickTarget={handlePickTarget}
           flipped={flipped}
           lastMove={lastMove}
+          prevBoard={prevBoard}
         />
         <Controls
           canUndo={false}

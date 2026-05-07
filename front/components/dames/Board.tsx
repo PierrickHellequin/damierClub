@@ -4,7 +4,12 @@ import { useMemo } from "react";
 import { cn } from "@/lib/cn";
 import { squareIndex } from "@/lib/dames/notation";
 import { BOARD_SIZE, isDark } from "@/lib/dames/types";
+import {
+  ANIM_LEG_DURATION_MS,
+  useMoveAnimation,
+} from "@/lib/dames/useMoveAnimation";
 import type {
+  Board as BoardData,
   Color,
   GameState,
   Move,
@@ -23,14 +28,22 @@ interface BoardProps {
   flipped?: boolean;
   /** Render as a static diagram (no interaction). */
   readOnly?: boolean;
-  /** Last move played, for highlighting. */
+  /** Last move played, for highlighting and animation. */
   lastMove?: Move;
+  /** Board *before* `lastMove` was applied — used to draw fading capture ghosts. */
+  prevBoard?: BoardData | null;
   /** Optional CSS size: a single number applied as both width and height. */
   size?: number;
 }
 
 const VIEWBOX = 100;
 const CELL = VIEWBOX / BOARD_SIZE;
+
+function cellCenter(row: number, col: number, flipped: boolean) {
+  const x = (flipped ? BOARD_SIZE - 1 - col : col) * CELL + CELL / 2;
+  const y = (flipped ? BOARD_SIZE - 1 - row : row) * CELL + CELL / 2;
+  return { x, y };
+}
 
 export function Board({
   state,
@@ -42,6 +55,7 @@ export function Board({
   flipped = false,
   readOnly = false,
   lastMove,
+  prevBoard = null,
 }: BoardProps) {
   const rows = useMemo(
     () => (flipped ? [...Array(BOARD_SIZE).keys()].reverse() : [...Array(BOARD_SIZE).keys()]),
@@ -51,6 +65,8 @@ export function Board({
     () => (flipped ? [...Array(BOARD_SIZE).keys()].reverse() : [...Array(BOARD_SIZE).keys()]),
     [flipped],
   );
+
+  const animation = useMoveAnimation(lastMove, state.board, prevBoard ?? null);
 
   function handleSquareClick(row: number, col: number) {
     if (readOnly) return;
@@ -64,7 +80,6 @@ export function Board({
       onPickSource({ row, col });
       return;
     }
-    // Click on empty/non-target — clear selection if any.
     onPickSource({ row, col });
   }
 
@@ -159,12 +174,18 @@ export function Board({
           }),
         )}
 
-        {/* Pieces */}
+        {/* Static pieces (skip the destination of an in-flight animation) */}
         {state.board.map((row, r) =>
           row.map((piece, c) => {
             if (!piece) return null;
-            const x = (flipped ? BOARD_SIZE - 1 - c : c) * CELL + CELL / 2;
-            const y = (flipped ? BOARD_SIZE - 1 - r : r) * CELL + CELL / 2;
+            if (
+              animation.hideStaticAt &&
+              animation.hideStaticAt.row === r &&
+              animation.hideStaticAt.col === c
+            ) {
+              return null;
+            }
+            const { x, y } = cellCenter(r, c, flipped);
             const movable = !readOnly && movableSquares.has(`${r},${c}`);
             return (
               <PieceSvg
@@ -179,6 +200,50 @@ export function Board({
             );
           }),
         )}
+
+        {/* Capture ghosts — fade out during the animation */}
+        {animation.captures.map((cap, i) => {
+          const { x, y } = cellCenter(cap.pos.row, cap.pos.col, flipped);
+          // Outer <g> positions the ghost; the inner <g> only animates opacity
+          // so the SVG transform attribute is not overridden by the keyframe.
+          return (
+            <g
+              key={`cap-${i}`}
+              transform={`translate(${x}, ${y})`}
+              pointerEvents="none"
+            >
+              <g
+                style={{
+                  animation: `dames-cap-fade ${animation.animator?.totalDurationMs ?? 360}ms ease-out forwards`,
+                }}
+              >
+                <CaptureGhostShape piece={cap.piece} r={CELL * 0.4} />
+              </g>
+            </g>
+          );
+        })}
+
+        {/* Animated piece on top */}
+        {animation.animator ? (
+          <g
+            transform={`translate(${cellCenter(animation.animator.pos.row, animation.animator.pos.col, flipped).x}, ${cellCenter(animation.animator.pos.row, animation.animator.pos.col, flipped).y})`}
+            style={{
+              transition: animation.animator.primed
+                ? "none"
+                : `transform ${ANIM_LEG_DURATION_MS}ms cubic-bezier(.4,0,.2,1)`,
+              pointerEvents: "none",
+            }}
+          >
+            <PieceSvg
+              piece={animation.animator.piece}
+              cx={0}
+              cy={0}
+              r={CELL * 0.4}
+              movable={false}
+              onClick={() => {}}
+            />
+          </g>
+        ) : null}
 
         {/* Square numbers (FFJD notation) — small, on dark squares only */}
         {rows.map((row) =>
@@ -256,6 +321,38 @@ function PieceSvg({
         <circle cx={0} cy={0} r={r + 0.6} fill="none" stroke="#2d4a3e" strokeWidth={0.3} strokeOpacity={0.7} />
       ) : null}
     </g>
+  );
+}
+
+/**
+ * Smaller, opacity-driven version of a piece, used by the fading capture
+ * ghosts. The piece does NOT receive interactions.
+ */
+function CaptureGhostShape({ piece, r }: { piece: Piece; r: number }) {
+  const isWhite = piece.color === "white";
+  const fill = isWhite ? "#f1e6c8" : "#1a1714";
+  const stroke = isWhite ? "#1a1714" : "#000";
+  return (
+    <>
+      <ellipse cx={0} cy={r * 0.18} rx={r * 1.05} ry={r * 0.32} fill="#000" fillOpacity={0.25} />
+      <circle cx={0} cy={0} r={r} fill={fill} stroke={stroke} strokeWidth={0.4} />
+      <circle
+        cx={0}
+        cy={0}
+        r={r * 0.5}
+        fill="none"
+        stroke="#8c1f1f"
+        strokeWidth={0.6}
+      />
+      <line
+        x1={-r * 0.5}
+        y1={-r * 0.5}
+        x2={r * 0.5}
+        y2={r * 0.5}
+        stroke="#8c1f1f"
+        strokeWidth={0.6}
+      />
+    </>
   );
 }
 

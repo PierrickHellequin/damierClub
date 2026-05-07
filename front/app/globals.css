@@ -29,6 +29,19 @@
     color: theme("colors.paper.DEFAULT");
   }
 
+  /* Used by the dames Board for fading capture ghosts during a move animation. */
+  @keyframes dames-cap-fade {
+    0% {
+      opacity: 1;
+    }
+    55% {
+      opacity: 0.5;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
   /* Subtle paper grain on cards */
   .paper-grain {
     background-image:
