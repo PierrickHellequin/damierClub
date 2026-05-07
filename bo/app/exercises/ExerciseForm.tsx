@@ -15,7 +15,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { PositionPreview } from '../../components/dames/PositionPreview';
+import { PositionEditor } from '../../components/dames/PositionEditor';
 import exerciseProvider from '../../providers/exerciseProvider';
 import {
   EMPTY_POSITION,
@@ -171,29 +171,37 @@ export function ExerciseForm({ exercise }: Props) {
           <CardHeader>
             <CardTitle>Position</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-4">
             <p className="text-sm text-gray-600">
-              Encodage : 50 caractères pour les 50 cases noires (haut-gauche →
-              bas-droite).
-              <code className="mx-1 px-1 bg-gray-100">.</code>vide,
-              <code className="mx-1 px-1 bg-gray-100">w</code>pion blanc,
-              <code className="mx-1 px-1 bg-gray-100">W</code>dame blanche,
-              <code className="mx-1 px-1 bg-gray-100">b</code>pion noir,
-              <code className="mx-1 px-1 bg-gray-100">B</code>dame noire.
+              Sélectionnez un outil dans la palette puis cliquez sur les cases
+              noires du plateau. Maj+clic ou clic droit pour effacer.
             </p>
-            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-[1fr_auto]">
-              <Textarea
-                rows={4}
-                value={data.position}
-                onChange={(e) => update('position', e.target.value)}
-                className="font-mono"
-                spellCheck={false}
-              />
-              <PositionPreview position={data.position} />
-            </div>
-            <p className="mt-2 text-xs text-gray-500">
-              Longueur actuelle : {data.position.length} / 50
-            </p>
+            <PositionEditor
+              position={data.position}
+              onChange={(p) => update('position', p)}
+            />
+            <details className="text-xs text-gray-500">
+              <summary className="cursor-pointer select-none">
+                Encodage textuel (avancé)
+              </summary>
+              <div className="mt-2 space-y-1">
+                <Textarea
+                  rows={2}
+                  value={data.position}
+                  onChange={(e) => update('position', e.target.value)}
+                  className="font-mono"
+                  spellCheck={false}
+                />
+                <p>
+                  50 caractères :{' '}
+                  <code className="bg-gray-100 px-1">.</code> vide,{' '}
+                  <code className="bg-gray-100 px-1">w</code> pion blanc,{' '}
+                  <code className="bg-gray-100 px-1">W</code> dame blanche,{' '}
+                  <code className="bg-gray-100 px-1">b</code> pion noir,{' '}
+                  <code className="bg-gray-100 px-1">B</code> dame noire.
+                </p>
+              </div>
+            </details>
           </CardContent>
         </Card>
 
