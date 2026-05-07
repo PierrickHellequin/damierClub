@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { GameView } from "@/components/dames/GameView";
+import { ExerciseRunner } from "@/components/dames/ExerciseRunner";
 import { decodeBoard } from "@/lib/dames/notation";
 import { cn } from "@/lib/cn";
 import type { Exercise } from "@/lib/dames/exercises";
@@ -19,7 +19,6 @@ const DIFFICULTY_LABEL = {
 
 export function EntrainementClient({ exercises }: Props) {
   const [activeId, setActiveId] = useState(exercises[0]?.id ?? "");
-  const [showSolution, setShowSolution] = useState(false);
   const active = useMemo(
     () => exercises.find((e) => e.id === activeId) ?? exercises[0] ?? null,
     [exercises, activeId],
@@ -55,10 +54,7 @@ export function EntrainementClient({ exercises }: Props) {
             <li key={e.id}>
               <button
                 type="button"
-                onClick={() => {
-                  setActiveId(e.id);
-                  setShowSolution(false);
-                }}
+                onClick={() => setActiveId(e.id)}
                 className={cn(
                   "w-full px-4 py-3 text-left transition-colors",
                   e.id === active.id
@@ -86,52 +82,27 @@ export function EntrainementClient({ exercises }: Props) {
         </header>
         <div className="mt-6">
           {initial ? (
-            <GameView
+            <ExerciseRunner
               key={active.id}
               initial={initial}
-              ai={{ mode: "two-players" }}
-              hideHistory
-              hideCaptured
+              studentSide={active.sideToPlay}
               hint={
                 <p>
                   <strong>
-                    {active.sideToPlay === "white" ? "Trait aux Blancs." : "Trait aux Noirs."}
+                    {active.sideToPlay === "white"
+                      ? "Trait aux Blancs."
+                      : "Trait aux Noirs."}
                   </strong>{" "}
-                  Trouvez le meilleur coup. Vous pouvez essayer plusieurs
-                  variantes : le bouton « Recommencer » remet la position
-                  initiale.
+                  Trouvez le meilleur coup. Le coach analyse votre choix dès
+                  que vous jouez.
                 </p>
               }
+              solution={active.solution || undefined}
             />
           ) : (
             <p className="text-ink-soft italic">
               Position invalide pour cet exercice.
             </p>
-          )}
-        </div>
-        <div className="mt-6 border-t border-rule pt-4">
-          {showSolution ? (
-            <div className="border-l-4 border-accent-green bg-paper-deep paper-grain px-5 py-4">
-              <p className="text-[0.7rem] font-meta uppercase tracking-[0.3em] text-accent-green">
-                Solution
-              </p>
-              <p className="mt-2 text-ink">{active.solution}</p>
-              <button
-                type="button"
-                onClick={() => setShowSolution(false)}
-                className="mt-3 text-[0.7rem] font-meta uppercase tracking-[0.2em] text-ink-soft hover:text-accent-red"
-              >
-                Masquer
-              </button>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setShowSolution(true)}
-              className="border border-ink px-4 py-2 font-meta text-[0.75rem] uppercase tracking-[0.2em] hover:bg-ink hover:text-paper"
-            >
-              Voir la solution
-            </button>
           )}
         </div>
       </section>

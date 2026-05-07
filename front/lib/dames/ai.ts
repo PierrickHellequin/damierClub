@@ -169,3 +169,52 @@ export async function pickMove(
   const moves = legalMoves(board, me);
   return moves.length > 0 ? moves[0] : null;
 }
+
+/**
+ * Coach mode: returns the best move *and* its evaluation, plus the score
+ * of the move actually played, so the UI can give feedback like
+ * "you lost 0.4 points compared to the recommended move".
+ *
+ * Score sign: positive means good for `me`. Centipawn-equivalent (1 pawn ≈ 100).
+ */
+export async function analyseMove(
+  board: Board,
+  me: Color,
+  played: Move,
+  depth = 4,
+): Promise<{ best: Move | null; bestScore: number; playedScore: number }> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  const { move: best, score: bestScore } = search(
+    board,
+    me,
+    me,
+    depth,
+    -Infinity,
+    Infinity,
+  );
+  // Score the played move by running the search after applying it.
+  const after = applyMove(board, played);
+  // The opponent now plays; from `me`'s point of view we maximise.
+  const { score: oppoBest } = search(
+    after,
+    opposite(me),
+    me,
+    depth - 1,
+    -Infinity,
+    Infinity,
+  );
+  return { best, bestScore, playedScore: oppoBest };
+}
+
+/**
+ * Returns the best move only (for hints). Same depth tuning as the moyen
+ * difficulty so it's quick.
+ */
+export async function bestMoveHint(
+  board: Board,
+  me: Color,
+): Promise<Move | null> {
+  await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  const { move } = search(board, me, me, 4, -Infinity, Infinity);
+  return move;
+}
