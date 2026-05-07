@@ -15,6 +15,12 @@ export enum ExerciseStatus {
   ARCHIVED = 'ARCHIVED',
 }
 
+export interface MovePair {
+  /** FFJD square index, 1-50. */
+  from: number;
+  to: number;
+}
+
 export interface Exercise {
   id: string; // UUID
   title: string;
@@ -24,6 +30,7 @@ export interface Exercise {
   sideToPlay: ExerciseSide;
   difficulty: ExerciseDifficulty;
   solution?: string;
+  solutionMoves?: MovePair[] | null;
   status: ExerciseStatus;
   publishedAt?: string;
   createdAt: string;
@@ -37,6 +44,7 @@ export interface ExerciseFormData {
   sideToPlay: ExerciseSide;
   difficulty: ExerciseDifficulty;
   solution?: string;
+  solutionMoves?: MovePair[] | null;
   status?: ExerciseStatus;
 }
 

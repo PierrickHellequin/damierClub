@@ -27,19 +27,19 @@ public class ExerciseController {
 
     @Operation(summary = "Liste paginée des exercices")
     @GetMapping
-    public Page<Exercise> list(
+    public Page<ExerciseDTO> list(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size,
             @RequestParam(required = false) Status status
     ) {
-        return exerciseService.list(page, size, status);
+        return exerciseService.list(page, size, status).map(exerciseService::toDto);
     }
 
     @Operation(summary = "Détail d'un exercice")
     @GetMapping("/{id}")
-    public ResponseEntity<Exercise> get(@PathVariable UUID id) {
+    public ResponseEntity<ExerciseDTO> get(@PathVariable UUID id) {
         try {
-            return ResponseEntity.ok(exerciseService.get(id));
+            return ResponseEntity.ok(exerciseService.toDto(exerciseService.get(id)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
@@ -50,7 +50,7 @@ public class ExerciseController {
     public ResponseEntity<?> create(@RequestBody ExerciseDTO dto) {
         try {
             Exercise created = exerciseService.create(dto);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(exerciseService.toDto(created));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -60,7 +60,7 @@ public class ExerciseController {
     @PutMapping("/{id}")
     public ResponseEntity<?> update(@PathVariable UUID id, @RequestBody ExerciseDTO dto) {
         try {
-            return ResponseEntity.ok(exerciseService.update(id, dto));
+            return ResponseEntity.ok(exerciseService.toDto(exerciseService.update(id, dto)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
@@ -68,9 +68,9 @@ public class ExerciseController {
 
     @Operation(summary = "Publier un exercice")
     @PatchMapping("/{id}/publish")
-    public ResponseEntity<Exercise> publish(@PathVariable UUID id) {
+    public ResponseEntity<ExerciseDTO> publish(@PathVariable UUID id) {
         try {
-            return ResponseEntity.ok(exerciseService.publish(id));
+            return ResponseEntity.ok(exerciseService.toDto(exerciseService.publish(id)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
@@ -78,9 +78,9 @@ public class ExerciseController {
 
     @Operation(summary = "Dépublier (retour brouillon)")
     @PatchMapping("/{id}/unpublish")
-    public ResponseEntity<Exercise> unpublish(@PathVariable UUID id) {
+    public ResponseEntity<ExerciseDTO> unpublish(@PathVariable UUID id) {
         try {
-            return ResponseEntity.ok(exerciseService.unpublish(id));
+            return ResponseEntity.ok(exerciseService.toDto(exerciseService.unpublish(id)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }
@@ -88,9 +88,9 @@ public class ExerciseController {
 
     @Operation(summary = "Archiver")
     @PatchMapping("/{id}/archive")
-    public ResponseEntity<Exercise> archive(@PathVariable UUID id) {
+    public ResponseEntity<ExerciseDTO> archive(@PathVariable UUID id) {
         try {
-            return ResponseEntity.ok(exerciseService.archive(id));
+            return ResponseEntity.ok(exerciseService.toDto(exerciseService.archive(id)));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();
         }

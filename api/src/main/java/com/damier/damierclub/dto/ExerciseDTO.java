@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 /** Full DTO used by the BO admin endpoints. */
@@ -22,6 +23,8 @@ public class ExerciseDTO {
     private Side sideToPlay;
     private Difficulty difficulty;
     private String solution;
+    /** Structured combination, FFJD notation 1..50 per square. */
+    private List<MovePairDTO> solutionMoves;
     private Status status;
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;

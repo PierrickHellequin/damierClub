@@ -7,6 +7,12 @@ import type { Board, Color } from "./types";
 
 export type ExerciseDifficulty = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 
+export interface SolutionMovePair {
+  /** FFJD square index, 1-50. */
+  from: number;
+  to: number;
+}
+
 export interface Exercise {
   id: string;
   title: string;
@@ -17,6 +23,13 @@ export interface Exercise {
   difficulty: ExerciseDifficulty;
   /** Plain-text solution shown on demand. */
   solution: string;
+  /**
+   * Optional structured combination. When provided, the coach validates the
+   * student's move against this sequence rather than relying on the AI.
+   * Pairs are in FFJD notation 1..50. Indexes alternate: even = student,
+   * odd = automatic opponent reply.
+   */
+  solutionMoves?: SolutionMovePair[];
 }
 
 const empty = ".".repeat(50);
@@ -45,6 +58,8 @@ export const BUILTIN_EXERCISES: Exercise[] = [
     difficulty: "BEGINNER",
     solution:
       "32x23x14. Le pion blanc saute par-dessus la pièce 28 puis enchaîne sur 19, et atteint la case 14.",
+    // Single-move combination: the rafle 32 → 14 (capturing 28 and 19).
+    solutionMoves: [{ from: 32, to: 14 }],
   },
   {
     id: "longest-rule",

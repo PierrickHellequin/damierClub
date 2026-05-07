@@ -58,6 +58,12 @@ export interface PublicStats {
 
 export type ExerciseDifficulty = "BEGINNER" | "INTERMEDIATE" | "ADVANCED";
 
+export interface MovePair {
+  /** FFJD square index, 1-50. */
+  from: number;
+  to: number;
+}
+
 export interface PublicExercise {
   id: string;
   title: string;
@@ -67,6 +73,8 @@ export interface PublicExercise {
   sideToPlay: "white" | "black";
   difficulty: ExerciseDifficulty;
   solution: string | null;
+  /** Structured combination — null when the exercise is text-only. */
+  solutionMoves: MovePair[] | null;
   publishedAt: string | null;
 }
 

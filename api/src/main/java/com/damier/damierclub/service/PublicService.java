@@ -38,15 +38,18 @@ public class PublicService {
     private final ClubRepository clubRepository;
     private final MemberRepository memberRepository;
     private final ExerciseRepository exerciseRepository;
+    private final ExerciseService exerciseService;
 
     public PublicService(ArticleRepository articleRepository,
                          ClubRepository clubRepository,
                          MemberRepository memberRepository,
-                         ExerciseRepository exerciseRepository) {
+                         ExerciseRepository exerciseRepository,
+                         ExerciseService exerciseService) {
         this.articleRepository = articleRepository;
         this.clubRepository = clubRepository;
         this.memberRepository = memberRepository;
         this.exerciseRepository = exerciseRepository;
+        this.exerciseService = exerciseService;
     }
 
     public Page<PublicArticleSummaryDTO> listArticles(int page, int size,
@@ -114,7 +117,7 @@ public class PublicService {
         return exerciseRepository
             .findByStatusOrderByDifficultyAscPublishedAtDesc(Exercise.Status.PUBLISHED)
             .stream()
-            .map(PublicMapper::toExercise)
+            .map(ex -> PublicMapper.toExercise(ex, exerciseService.readSolutionMoves(ex)))
             .toList();
     }
 }

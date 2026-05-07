@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -19,5 +20,7 @@ public class PublicExerciseDTO {
     private String sideToPlay;
     private Difficulty difficulty;
     private String solution;
+    /** Optional structured combination — null if the exercise is text-only. */
+    private List<MovePairDTO> solutionMoves;
     private LocalDateTime publishedAt;
 }

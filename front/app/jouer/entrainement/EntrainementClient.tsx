@@ -93,11 +93,13 @@ export function EntrainementClient({ exercises }: Props) {
                       ? "Trait aux Blancs."
                       : "Trait aux Noirs."}
                   </strong>{" "}
-                  Trouvez le meilleur coup. Le coach analyse votre choix dès
-                  que vous jouez.
+                  {active.solutionMoves && active.solutionMoves.length > 0
+                    ? "Reproduisez la combinaison attendue. Le coach valide chaque coup et joue automatiquement la réponse adverse."
+                    : "Trouvez le meilleur coup. Le coach analyse votre choix dès que vous jouez."}
                 </p>
               }
               solution={active.solution || undefined}
+              solutionMoves={active.solutionMoves}
             />
           ) : (
             <p className="text-ink-soft italic">

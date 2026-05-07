@@ -1,36 +1,52 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Board } from "./Board";
 import { Controls } from "./Controls";
 import { GameStatus } from "./GameStatus";
 import { useGame } from "@/lib/dames/useGame";
 import { analyseMove, bestMoveHint } from "@/lib/dames/ai";
-import { moveNotation } from "@/lib/dames/notation";
+import { indexToPos, moveNotation, squareIndex } from "@/lib/dames/notation";
+import { legalMoves } from "@/lib/dames/rules";
 import type { Color, GameState, Position } from "@/lib/dames/types";
+import type { SolutionMovePair } from "@/lib/dames/exercises";
 import { cn } from "@/lib/cn";
 
 interface Props {
   initial: GameState;
-  /** Side the student is solving for. Once they play, no further input is accepted. */
+  /** Side the student is solving for. */
   studentSide: Color;
   /** Free text shown above the board (énoncé). */
   hint?: React.ReactNode;
   /** The exercise's stored solution, revealed on demand. */
   solution?: string;
+  /**
+   * Optional structured combination. When provided, the coach validates the
+   * student's move against this sequence rather than relying on the AI.
+   * Even indexes (0, 2, …) are student moves; odd indexes are auto-played
+   * opponent replies.
+   */
+  solutionMoves?: SolutionMovePair[];
 }
 
 type Verdict =
   | { kind: "perfect" }
   | { kind: "good"; deltaCp: number }
-  | { kind: "imperfect"; deltaCp: number; bestNotation: string };
+  | { kind: "imperfect"; deltaCp: number; bestNotation: string }
+  | { kind: "step-correct"; remaining: number }
+  | { kind: "wrong"; expected: string; played: string }
+  | { kind: "combo-completed" };
+
+const OPPONENT_REPLY_DELAY_MS = 700;
 
 export function ExerciseRunner({
   initial,
   studentSide,
   hint,
   solution,
+  solutionMoves,
 }: Props) {
+  const usingSequence = !!solutionMoves && solutionMoves.length > 0;
   const {
     state,
     selection,
@@ -46,15 +62,15 @@ export function ExerciseRunner({
   const [verdict, setVerdict] = useState<Verdict | null>(null);
   const [analysing, setAnalysing] = useState(false);
   const [showSolution, setShowSolution] = useState(false);
-  const [studentMoved, setStudentMoved] = useState(false);
+  const [locked, setLocked] = useState(false);
+  const [sequenceStep, setSequenceStep] = useState(0);
 
   const lastMove =
     state.history.length > 0 ? state.history[state.history.length - 1] : undefined;
 
   const handlePickSource = useCallback(
     (pos: Position) => {
-      // Once the student has played their move, the board is locked.
-      if (studentMoved) return;
+      if (locked) return;
       if (selection.kind === "selected") {
         if (
           selection.from.row === pos.row &&
@@ -70,23 +86,58 @@ export function ExerciseRunner({
       } else {
         deselect();
       }
-      // Picking a source clears any visible hint.
       setHintSquare(null);
     },
-    [studentMoved, selection, state.board, state.turn, select, deselect],
+    [locked, selection, state.board, state.turn, select, deselect],
   );
 
   const handlePickTarget = useCallback(
     (pos: Position) => {
-      if (studentMoved) return;
+      if (locked) return;
       const move = targets.get(`${pos.row},${pos.col}`);
       if (!move) return;
-      setStudentMoved(true);
       setHintSquare(null);
-      // Snapshot the board *before* the move so we can analyse it.
+
+      if (usingSequence && solutionMoves) {
+        const expected = solutionMoves[sequenceStep];
+        const playedFrom = squareIndex(move.from.row, move.from.col);
+        const playedTo = squareIndex(move.to.row, move.to.col);
+        if (
+          expected &&
+          expected.from === playedFrom &&
+          expected.to === playedTo
+        ) {
+          play(move);
+          const nextStep = sequenceStep + 1;
+          setSequenceStep(nextStep);
+          const remaining = solutionMoves.length - nextStep;
+          if (remaining === 0) {
+            setVerdict({ kind: "combo-completed" });
+            setLocked(true);
+          } else {
+            // The opponent reply (if any) is scheduled by the effect below.
+            setVerdict({ kind: "step-correct", remaining });
+          }
+        } else {
+          // Apply the move so the board reflects the wrong choice, then lock.
+          play(move);
+          setVerdict({
+            kind: "wrong",
+            expected: expected
+              ? `${expected.from}${expected.to ? "-" : ""}${expected.to}`
+              : "?",
+            played: moveNotation(move),
+          });
+          setLocked(true);
+        }
+        return;
+      }
+
+      // AI-only mode: snapshot the board *before* the move so we can analyse.
       const beforeBoard = state.board;
       const beforeTurn = state.turn;
       play(move);
+      setLocked(true);
       setAnalysing(true);
       setVerdict(null);
       analyseMove(beforeBoard, beforeTurn, move, 4)
@@ -117,24 +168,79 @@ export function ExerciseRunner({
           setAnalysing(false);
         });
     },
-    [studentMoved, targets, play, state.board, state.turn],
+    [
+      locked,
+      targets,
+      usingSequence,
+      solutionMoves,
+      sequenceStep,
+      play,
+      state.board,
+      state.turn,
+    ],
   );
 
+  // Auto-play the opponent reply when it's their turn in sequence mode.
+  useEffect(() => {
+    if (!usingSequence || !solutionMoves) return;
+    if (locked) return;
+    if (sequenceStep >= solutionMoves.length) return;
+    if (sequenceStep % 2 === 0) return; // student's turn
+    const reply = solutionMoves[sequenceStep];
+    const timer = window.setTimeout(() => {
+      const legal = legalMoves(state.board, state.turn);
+      const match = legal.find(
+        (m) =>
+          squareIndex(m.from.row, m.from.col) === reply.from &&
+          squareIndex(m.to.row, m.to.col) === reply.to,
+      );
+      if (!match) {
+        // The stored opponent move is no longer legal — fail safely.
+        setVerdict({
+          kind: "wrong",
+          expected: `${reply.from}-${reply.to}`,
+          played: "—",
+        });
+        setLocked(true);
+        return;
+      }
+      play(match);
+      const nextStep = sequenceStep + 1;
+      setSequenceStep(nextStep);
+      const remaining = solutionMoves.length - nextStep;
+      if (remaining === 0) {
+        setVerdict({ kind: "combo-completed" });
+        setLocked(true);
+      } else {
+        setVerdict({ kind: "step-correct", remaining });
+      }
+    }, OPPONENT_REPLY_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [usingSequence, solutionMoves, sequenceStep, locked, play, state.board, state.turn]);
+
   const askHint = useCallback(() => {
-    if (studentMoved) return;
+    if (locked) return;
+    if (usingSequence && solutionMoves) {
+      const expected = solutionMoves[sequenceStep];
+      if (expected) {
+        setHintSquare(indexToPos(expected.from));
+      }
+      return;
+    }
     setAnalysing(true);
     bestMoveHint(state.board, state.turn)
       .then((m) => {
         if (m) setHintSquare({ row: m.from.row, col: m.from.col });
       })
       .finally(() => setAnalysing(false));
-  }, [studentMoved, state.board, state.turn]);
+  }, [locked, usingSequence, solutionMoves, sequenceStep, state.board, state.turn]);
 
   const handleReset = useCallback(() => {
-    setStudentMoved(false);
+    setLocked(false);
     setVerdict(null);
     setHintSquare(null);
     setShowSolution(false);
+    setSequenceStep(0);
     reset(initial);
   }, [initial, reset]);
 
@@ -173,8 +279,14 @@ export function ExerciseRunner({
           outcome={state.outcome}
         />
 
-        {!studentMoved ? (
-          <CoachActions onHint={askHint} thinking={analysing} />
+        {!locked && verdict?.kind !== "step-correct" ? (
+          <CoachActions
+            onHint={askHint}
+            thinking={analysing}
+            usingSequence={usingSequence}
+            stepsTotal={solutionMoves?.length ?? 0}
+            stepIndex={sequenceStep}
+          />
         ) : (
           <CoachVerdict verdict={verdict} thinking={analysing} />
         )}
@@ -194,18 +306,36 @@ export function ExerciseRunner({
 function CoachActions({
   onHint,
   thinking,
+  usingSequence,
+  stepsTotal,
+  stepIndex,
 }: {
   onHint: () => void;
   thinking: boolean;
+  usingSequence: boolean;
+  stepsTotal: number;
+  stepIndex: number;
 }) {
+  const studentMovesTotal = Math.ceil(stepsTotal / 2);
+  const studentMovesPlayed = Math.ceil(stepIndex / 2);
   return (
     <div className="border-2 border-ink bg-paper-deep paper-grain p-5">
       <p className="text-[0.7rem] font-meta uppercase tracking-[0.3em] text-ink-soft">
         Coach
       </p>
       <p className="mt-2 text-sm text-ink-soft">
-        Trouvez le coup. L'indice met en évidence le pion à jouer (sans
-        révéler la destination).
+        {usingSequence ? (
+          <>
+            Combinaison à reproduire : {studentMovesPlayed} / {studentMovesTotal} coup
+            {studentMovesTotal > 1 ? "s" : ""} joué{studentMovesPlayed > 1 ? "s" : ""}.
+            Le coach met en évidence le pion à jouer si vous demandez un indice.
+          </>
+        ) : (
+          <>
+            Trouvez le coup. {`L'indice met en évidence le pion à jouer (sans
+          révéler la destination).`}
+          </>
+        )}
       </p>
       <button
         type="button"
@@ -251,6 +381,41 @@ function CoachVerdict({
       </div>
     );
   }
+  if (verdict.kind === "combo-completed") {
+    return (
+      <Verdict tone="green" title="Combinaison réussie ✓">
+        <p>
+          {`Vous avez joué la combinaison complète attendue. Bravo ! Cliquez
+          sur `}
+          <em>Recommencer</em> pour rejouer la position.
+        </p>
+      </Verdict>
+    );
+  }
+  if (verdict.kind === "step-correct") {
+    return (
+      <Verdict tone="green" title="Bon coup ✓">
+        <p>
+          {verdict.remaining > 1
+            ? `Continuez : ${verdict.remaining} coups restants dans la combinaison.`
+            : "Encore un coup pour terminer la combinaison."}
+        </p>
+      </Verdict>
+    );
+  }
+  if (verdict.kind === "wrong") {
+    return (
+      <Verdict tone="red" title="Ce n'est pas le coup attendu">
+        <p>
+          Le coup attendu était <strong>{verdict.expected}</strong>. Vous avez
+          joué <strong>{verdict.played}</strong>.
+        </p>
+        <p className="mt-2 text-sm text-ink-soft">
+          Cliquez sur <em>Recommencer</em> pour réessayer.
+        </p>
+      </Verdict>
+    );
+  }
   if (verdict.kind === "perfect") {
     return (
       <Verdict tone="green" title="Coup parfait ✓">
@@ -277,7 +442,7 @@ function CoachVerdict({
     <Verdict tone="red" title="On peut mieux faire">
       <p>
         Le coup recommandé était <strong>{verdict.bestNotation}</strong>.
-        Différence d'évaluation :{" "}
+        Différence d&apos;évaluation :{" "}
         <strong>{(verdict.deltaCp / 100).toFixed(2)}</strong> en faveur du
         coup recommandé.
       </p>

@@ -1,9 +1,12 @@
 package com.damier.damierclub.service;
 
 import com.damier.damierclub.dto.ExerciseDTO;
+import com.damier.damierclub.dto.MovePairDTO;
 import com.damier.damierclub.model.Exercise;
 import com.damier.damierclub.model.Exercise.Status;
 import com.damier.damierclub.repository.ExerciseRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,17 +14,23 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ExerciseService {
 
     private static final int POSITION_LENGTH = 50;
+    private static final TypeReference<List<MovePairDTO>> MOVE_LIST_TYPE =
+        new TypeReference<List<MovePairDTO>>() {};
 
     private final ExerciseRepository exerciseRepository;
+    private final ObjectMapper objectMapper;
 
-    public ExerciseService(ExerciseRepository exerciseRepository) {
+    public ExerciseService(ExerciseRepository exerciseRepository, ObjectMapper objectMapper) {
         this.exerciseRepository = exerciseRepository;
+        this.objectMapper = objectMapper;
     }
 
     public Page<Exercise> list(int page, int size, Status status) {
@@ -74,6 +83,36 @@ public class ExerciseService {
         exerciseRepository.deleteById(id);
     }
 
+    /** Parse the stored JSON into a typed list. Empty list when null/blank. */
+    public List<MovePairDTO> readSolutionMoves(Exercise ex) {
+        String json = ex.getSolutionMovesJson();
+        if (json == null || json.isBlank()) return Collections.emptyList();
+        try {
+            return objectMapper.readValue(json, MOVE_LIST_TYPE);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    /** Build the admin-facing DTO with the parsed solution moves. */
+    public ExerciseDTO toDto(Exercise ex) {
+        List<MovePairDTO> moves = readSolutionMoves(ex);
+        return new ExerciseDTO(
+            ex.getId(),
+            ex.getTitle(),
+            ex.getDescription(),
+            ex.getPosition(),
+            ex.getSideToPlay(),
+            ex.getDifficulty(),
+            ex.getSolution(),
+            moves.isEmpty() ? null : moves,
+            ex.getStatus(),
+            ex.getPublishedAt(),
+            ex.getCreatedAt(),
+            ex.getUpdatedAt()
+        );
+    }
+
     private void applyFromDto(Exercise ex, ExerciseDTO dto) {
         ex.setTitle(dto.getTitle());
         ex.setDescription(dto.getDescription());
@@ -81,7 +120,17 @@ public class ExerciseService {
         ex.setSideToPlay(dto.getSideToPlay());
         ex.setDifficulty(dto.getDifficulty());
         ex.setSolution(dto.getSolution());
+        ex.setSolutionMovesJson(serialiseMoves(dto.getSolutionMoves()));
         if (dto.getStatus() != null) ex.setStatus(dto.getStatus());
+    }
+
+    private String serialiseMoves(List<MovePairDTO> moves) {
+        if (moves == null || moves.isEmpty()) return null;
+        try {
+            return objectMapper.writeValueAsString(moves);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("invalid solutionMoves payload");
+        }
     }
 
     private void validate(ExerciseDTO dto) {
@@ -104,6 +153,23 @@ public class ExerciseService {
         }
         if (dto.getDifficulty() == null) {
             throw new IllegalArgumentException("difficulty is required");
+        }
+        if (dto.getSolutionMoves() != null) {
+            for (int i = 0; i < dto.getSolutionMoves().size(); i++) {
+                MovePairDTO mp = dto.getSolutionMoves().get(i);
+                if (mp == null || mp.getFrom() == null || mp.getTo() == null) {
+                    throw new IllegalArgumentException(
+                        "solutionMoves[" + i + "] must have non-null from/to");
+                }
+                if (mp.getFrom() < 1 || mp.getFrom() > 50 || mp.getTo() < 1 || mp.getTo() > 50) {
+                    throw new IllegalArgumentException(
+                        "solutionMoves[" + i + "] must reference squares in 1..50");
+                }
+                if (mp.getFrom().equals(mp.getTo())) {
+                    throw new IllegalArgumentException(
+                        "solutionMoves[" + i + "] from must differ from to");
+                }
+            }
         }
     }
 }

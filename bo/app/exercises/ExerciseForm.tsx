@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/select';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PositionEditor } from '../../components/dames/PositionEditor';
+import { MoveRecorder } from '../../components/dames/MoveRecorder';
 import exerciseProvider from '../../providers/exerciseProvider';
 import {
   EMPTY_POSITION,
@@ -23,9 +24,11 @@ import {
   ExerciseDifficulty,
   ExerciseDifficultyLabels,
   type ExerciseFormData,
+  type MovePair,
   ExerciseSide,
   ExerciseSideLabels,
 } from '../../types/exercise';
+import type { Color } from '../../lib/dames/types';
 
 interface Props {
   exercise?: Exercise;
@@ -41,6 +44,7 @@ export function ExerciseForm({ exercise }: Props) {
     sideToPlay: exercise?.sideToPlay ?? ExerciseSide.WHITE,
     difficulty: exercise?.difficulty ?? ExerciseDifficulty.BEGINNER,
     solution: exercise?.solution ?? '',
+    solutionMoves: exercise?.solutionMoves ?? [],
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -178,7 +182,11 @@ export function ExerciseForm({ exercise }: Props) {
             </p>
             <PositionEditor
               position={data.position}
-              onChange={(p) => update('position', p)}
+              onChange={(p) => {
+                update('position', p);
+                // Position changes invalidate the recorded combination.
+                update('solutionMoves', []);
+              }}
             />
             <details className="text-xs text-gray-500">
               <summary className="cursor-pointer select-none">
@@ -202,6 +210,28 @@ export function ExerciseForm({ exercise }: Props) {
                 </p>
               </div>
             </details>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Combinaison (solution structurée)</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Jouez la combinaison attendue sur le plateau ci-dessous : le
+              premier coup est celui du joueur, le second la réponse de
+              l&apos;adversaire (jouée automatiquement par le coach), et ainsi
+              de suite. Le mode entraînement validera la séquence pas à pas.
+              Laisser vide si l&apos;exercice n&apos;a pas de solution
+              structurée.
+            </p>
+            <MoveRecorder
+              position={data.position}
+              sideToPlay={data.sideToPlay === ExerciseSide.WHITE ? ('white' as Color) : ('black' as Color)}
+              moves={data.solutionMoves ?? []}
+              onChange={(next: MovePair[]) => update('solutionMoves', next)}
+            />
           </CardContent>
         </Card>
 

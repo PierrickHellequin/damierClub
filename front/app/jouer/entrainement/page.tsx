@@ -25,6 +25,7 @@ export default async function EntrainementPage() {
       sideToPlay: e.sideToPlay,
       difficulty: e.difficulty,
       solution: e.solution ?? "",
+      solutionMoves: e.solutionMoves ?? undefined,
     })),
     ...BUILTIN_EXERCISES,
   ];

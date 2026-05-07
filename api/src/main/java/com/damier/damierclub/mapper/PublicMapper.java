@@ -1,5 +1,6 @@
 package com.damier.damierclub.mapper;
 
+import com.damier.damierclub.dto.MovePairDTO;
 import com.damier.damierclub.dto.PublicArticleDTO;
 import com.damier.damierclub.dto.PublicArticleSummaryDTO;
 import com.damier.damierclub.dto.PublicAuthorDTO;
@@ -10,6 +11,8 @@ import com.damier.damierclub.model.Article;
 import com.damier.damierclub.model.Club;
 import com.damier.damierclub.model.Exercise;
 import com.damier.damierclub.model.Member;
+
+import java.util.List;
 
 public final class PublicMapper {
 
@@ -85,7 +88,7 @@ public final class PublicMapper {
         );
     }
 
-    public static PublicExerciseDTO toExercise(Exercise ex) {
+    public static PublicExerciseDTO toExercise(Exercise ex, List<MovePairDTO> solutionMoves) {
         if (ex == null) return null;
         return new PublicExerciseDTO(
             ex.getId() != null ? ex.getId().toString() : null,
@@ -95,6 +98,7 @@ public final class PublicMapper {
             ex.getSideToPlay() == Exercise.Side.BLACK ? "black" : "white",
             ex.getDifficulty(),
             ex.getSolution(),
+            solutionMoves == null || solutionMoves.isEmpty() ? null : solutionMoves,
             ex.getPublishedAt()
         );
     }

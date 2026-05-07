@@ -49,6 +49,14 @@ public class Exercise {
     @Column(columnDefinition = "TEXT")
     private String solution;
 
+    /**
+     * JSON array of move pairs {"from":N,"to":N} in FFJD notation (1..50).
+     * Stored as raw JSON for flexibility; the front and the BO are
+     * responsible for shape validation.
+     */
+    @Column(name = "solution_moves", columnDefinition = "TEXT")
+    private String solutionMovesJson;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 16)
     private Status status = Status.DRAFT;
