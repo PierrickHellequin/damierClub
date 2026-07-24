@@ -10,7 +10,7 @@
 hs_err_pid*
 
 # Maven specific
-.mvn/
+.mvn/wrapper/maven-wrapper.jar
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

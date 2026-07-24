@@ -1,45 +1,32 @@
 'use client';
-import { Spin } from 'antd';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useAuth } from './AuthProvider';
-import { useEffect } from 'react';
 import NewLayout from './Layout';
 
+// La protection des routes est faite côté serveur par bo/middleware.ts :
+// ici on ne gère plus que l'affichage (chrome admin vs pages publiques).
 export default function LayoutShell({ children }) {
   const { user, loading } = useAuth();
   const pathname = usePathname();
-  const router = useRouter();
 
   const currentPage = pathname === '/' ? 'dashboard' : pathname.split('/')[1];
+  const isPublicPage = pathname === '/login' || pathname === '/register';
 
-  // Redirection (hook toujours appelé, plus dans un if)
-  useEffect(() => {
-    if (!loading && !user && pathname !== '/login' && pathname !== '/register') {
-      router.replace('/login');
-    }
-  }, [user, loading, pathname, router]);
+  if (isPublicPage) {
+    return children;
+  }
 
-  if (loading) {
+  if (loading || !user) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" />
+      <div className="flex h-screen items-center justify-center bg-[#f7f6f3]">
+        <div
+          className="h-8 w-8 animate-spin rounded-full border-2 border-[#c99a3f] border-t-transparent"
+          role="status"
+          aria-label="Chargement"
+        />
       </div>
     );
   }
 
-  // Cas non authentifié sur page protégée: attendre redirection
-  if (!user && pathname !== '/login' && pathname !== '/register') {
-    return null;
-  }
-
-  // Cas pages publiques (login/register)
-  if (!user) {
-    return children;
-  }
-
-  return (
-    <NewLayout currentPage={currentPage}>
-      {children}
-    </NewLayout>
-  );
+  return <NewLayout currentPage={currentPage}>{children}</NewLayout>;
 }

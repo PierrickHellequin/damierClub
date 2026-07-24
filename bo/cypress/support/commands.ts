@@ -13,7 +13,7 @@ declare global {
        * Commande pour créer un utilisateur de test via l'API
        * @example cy.createTestUser()
        */
-      createTestUser(): Chainable<{ id: string; email: string; password: string }>
+      createTestUser(): Chainable<{ id: string; email: string; password: string; name: string }>
     }
   }
 }

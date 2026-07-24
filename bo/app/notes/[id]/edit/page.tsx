@@ -32,7 +32,7 @@ export default function EditNotePage() {
         visibility: note.visibility,
         pinned: note.pinned,
       });
-      setSelectedColor(note.color);
+      setSelectedColor(note.color ?? '');
     }
   }, [note, form]);
 

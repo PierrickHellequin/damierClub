@@ -16,8 +16,8 @@ describe('Member Type', () => {
   it('should reject numeric id at compile time (TypeScript)', () => {
     // Ce test vérifie que TypeScript empêche l'utilisation de number pour id
     // Le @ts-expect-error prouve que TypeScript rejette le type number
-    // @ts-expect-error - id doit être string, pas number
     const invalidMember: Member = {
+      // @ts-expect-error - id doit être string, pas number
       id: 123,
       name: 'Test User',
       email: 'test@example.com',
@@ -50,7 +50,7 @@ describe('Member Type', () => {
       id: '0199ee89-af5f-76df-9bfc-d343d49f1d38',
       name: 'Test',
       email: 'test@test.com',
-      club: { id: 1 },
+      club: { id: '550e8400-e29b-41d4-a716-446655440000' },
       clubId: 1,
       clubName: 'Test Club',
     }
@@ -62,12 +62,12 @@ describe('Member Type', () => {
 })
 
 describe('Club Type', () => {
-  it('should have id as number', () => {
+  it('should have id as string (UUID)', () => {
     const club: Club = {
-      id: 1,
+      id: '550e8400-e29b-41d4-a716-446655440000',
       name: 'Test Club',
     }
 
-    expect(typeof club.id).toBe('number')
+    expect(typeof club.id).toBe('string')
   })
 })

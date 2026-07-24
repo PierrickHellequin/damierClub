@@ -4,26 +4,11 @@ import {
   LayoutDashboard,
   FileText,
   StickyNote,
-  Image,
-  Calendar,
   Users,
   Building2,
-  Search,
-  Bell,
-  Settings,
-  LogOut
+  ExternalLink,
+  LogOut,
 } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { useAuth } from './AuthProvider';
 
@@ -33,35 +18,54 @@ interface LayoutProps {
 }
 
 const menuItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, href: '/' },
-  { id: 'clubs', label: 'Clubs', icon: Building2, href: '/clubs' },
+  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, href: '/' },
+  { id: 'articles', label: 'Actus', icon: FileText, href: '/articles' },
   { id: 'members', label: 'Membres', icon: Users, href: '/members' },
-  { id: 'articles', label: 'Articles', icon: FileText, href: '/articles' },
+  { id: 'clubs', label: 'Clubs', icon: Building2, href: '/clubs' },
   { id: 'notes', label: 'Notes internes', icon: StickyNote, href: '/notes' },
 ];
+
+/** Petit damier 4x4, signature visuelle du produit (cf. maquettes docs/mockups). */
+function DamierLogo() {
+  return (
+    <div
+      aria-hidden="true"
+      className="grid h-9 w-9 shrink-0 grid-cols-4 overflow-hidden rounded-md border-2 border-[#c99a3f]"
+    >
+      {Array.from({ length: 16 }, (_, i) => (
+        <span key={i} className={i % 2 === 0 ? 'aspect-square bg-[#f7f2e8]' : 'aspect-square bg-[#1e1a14]'} />
+      ))}
+    </div>
+  );
+}
 
 export default function Layout({ children, currentPage }: LayoutProps) {
   const router = useRouter();
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     router.push('/login');
   };
 
-  const firstName = user?.firstName || user?.name || 'Utilisateur';
-  const initials = firstName.charAt(0).toUpperCase();
+  const displayName = user?.firstName || user?.name || 'Utilisateur';
+  const initials = displayName.charAt(0).toUpperCase();
 
   return (
-    <div className="flex h-screen bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <div className="p-6 border-b border-gray-200">
-          <h1 className="text-lg font-semibold text-blue-600">Damier Club</h1>
-          <p className="text-gray-500 text-sm mt-1">Back Office</p>
+    <div className="flex h-screen bg-[#f7f6f3]">
+      {/* Sidebar — identité damier : noir profond + or */}
+      <aside className="flex w-64 flex-col bg-[#14110d] text-[#f7f2e8]">
+        <div className="flex items-center gap-3 border-b border-[#c99a3f]/25 p-5">
+          <DamierLogo />
+          <div>
+            <h1 className="text-[15px] font-extrabold leading-tight">Damier Wattrelos</h1>
+            <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#e3b95c]">
+              Administration
+            </p>
+          </div>
         </div>
 
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 space-y-1 p-3" aria-label="Navigation admin">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const isActive = currentPage === item.id;
@@ -69,78 +73,57 @@ export default function Layout({ children, currentPage }: LayoutProps) {
               <button
                 key={item.id}
                 onClick={() => router.push(item.href)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
                   isActive
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-[#c99a3f] text-[#14110d]'
+                    : 'text-[#cfc6b4] hover:bg-white/5 hover:text-white'
                 }`}
               >
-                <Icon size={20} />
+                <Icon size={18} />
                 <span>{item.label}</span>
               </button>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
-            <Settings size={20} />
-            <span>Paramètres</span>
-          </button>
+        <div className="border-t border-[#c99a3f]/25 p-3">
+          <a
+            href="/"
+            target="_blank"
+            rel="noreferrer"
+            className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-semibold text-[#cfc6b4] transition-colors hover:bg-white/5 hover:text-white"
+          >
+            <ExternalLink size={18} />
+            <span>Voir sur le site</span>
+          </a>
+
+          <div className="mt-2 flex items-center gap-3 rounded-lg bg-white/5 px-3 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#c99a3f] text-sm font-bold text-[#14110d]">
+              {initials}
+            </div>
+            <div className="min-w-0 flex-1">
+              <button
+                onClick={() => router.push('/profil/' + user?.id)}
+                className="block w-full truncate text-left text-sm font-semibold text-white hover:underline"
+              >
+                {displayName}
+              </button>
+              <p className="truncate text-xs text-[#a89b83]">{user?.clubRole || user?.role || 'Membre'}</p>
+            </div>
+            <button
+              onClick={handleLogout}
+              aria-label="Se déconnecter"
+              title="Se déconnecter"
+              className="rounded-md p-2 text-[#a89b83] transition-colors hover:bg-white/10 hover:text-white"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
-          <div className="flex-1 max-w-xl relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-            <Input
-              placeholder="Rechercher..."
-              className="pl-10 bg-gray-50 border-gray-200"
-            />
-          </div>
-
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell size={20} />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-            </Button>
-
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                  <div className="text-right">
-                    <div className="text-sm font-medium">{firstName}</div>
-                    <div className="text-xs text-gray-500">{user?.role || 'Utilisateur'}</div>
-                  </div>
-                  <Avatar>
-                    <AvatarImage src="" />
-                    <AvatarFallback className="bg-blue-600 text-white">{initials}</AvatarFallback>
-                  </Avatar>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuLabel>Mon compte</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push('/profil/' + user?.id)}>Profil</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/profil/' + user?.id)}>Paramètres</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
-                  <LogOut size={14} className="mr-2" />
-                  Déconnexion
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </header>
-
-        {/* Page Content */}
-        <main className="flex-1 overflow-auto">
-          {children}
-        </main>
-      </div>
+      {/* Contenu */}
+      <main className="flex-1 overflow-auto">{children}</main>
     </div>
   );
 }

@@ -13,7 +13,10 @@
 | Back Office | 3000 | http://localhost:3000 | pkhv@hotmail.fr / 123456 |
 | PostgreSQL | 5433 | localhost:5433 | clubuser / clubpass / clubdames |
 
-**Authentification** : Header `X-User-Email`
+**Authentification** : JWT (`Authorization: Bearer <token>`), émis par `/api/internal/login`,
+stocké côté BO dans un cookie httpOnly (`auth-token`). Secret via env `JWT_SECRET` (min. 32 octets).
+Le BO ne parle jamais à l'API depuis le navigateur : tout passe par les Server Actions
+(`bo/actions/api.ts`), la protection des routes est faite par `bo/middleware.ts`.
 
 ## Commandes principales
 

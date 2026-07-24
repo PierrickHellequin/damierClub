@@ -3,9 +3,8 @@ import { useAuth } from '@/components/AuthProvider';
 import { useNotes } from '@/hooks/useNotes';
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { TrendingUp, Users, FileText, Building2 } from 'lucide-react';
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { Spin } from 'antd';
+import { Users, FileText, Building2, StickyNote } from 'lucide-react';
+import { apiProvider } from '@/providers/apiProvider';
 import NoteCard from '@/components/NoteCard/NoteCard';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -14,167 +13,96 @@ import 'dayjs/locale/fr';
 dayjs.extend(relativeTime);
 dayjs.locale('fr');
 
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8090';
+interface NotesStats {
+  totalNotes?: number;
+  pinnedNotes?: number;
+}
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const { notes } = useNotes();
-  const [stats, setStats] = useState<any>(null);
-  const [membersCount, setMembersCount] = useState(0);
+  const [stats, setStats] = useState<NotesStats | null>(null);
+  const [membersCount, setMembersCount] = useState<number | null>(null);
 
   useEffect(() => {
-    if (user) {
-      // Fetch notes stats
-      fetch(`${API_BASE}/api/notes/stats`, {
-        headers: { 'X-User-Email': user.email }
-      })
-        .then(res => res.json())
-        .then(data => setStats(data))
-        .catch(err => console.error('Error fetching stats:', err));
+    if (!user) return;
 
-      // Fetch members count
-      fetch(`${API_BASE}/api/members?page=0&size=1`, {
-        headers: { 'X-User-Email': user.email }
-      })
-        .then(res => res.json())
-        .then(data => setMembersCount(data.totalElements || 0))
-        .catch(err => console.error('Error fetching members:', err));
-    }
+    apiProvider
+      .get<NotesStats>('notes/stats')
+      .then(setStats)
+      .catch((err) => console.error('Error fetching stats:', err));
+
+    apiProvider
+      .get<{ totalElements?: number }>('members?page=0&size=1')
+      .then((data) => setMembersCount(data.totalElements ?? 0))
+      .catch((err) => console.error('Error fetching members:', err));
   }, [user]);
 
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size="large" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="p-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Bienvenue</h2>
-        <p className="text-gray-500 mt-2">Veuillez vous connecter pour accéder au tableau de bord.</p>
-      </div>
-    );
-  }
-
-  // Mock data for charts (you can replace with real API data later)
-  const performanceData = [
-    { mois: 'Jan', membres: 45 },
-    { mois: 'Fév', membres: 48 },
-    { mois: 'Mar', membres: 52 },
-    { mois: 'Avr', membres: 55 },
-    { mois: 'Mai', membres: 58 },
-    { mois: 'Juin', membres: 62 },
-  ];
-
   return (
-    <div className="p-6 space-y-6">
-      {/* Header */}
+    <div className="space-y-6 p-6">
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">Dashboard</h2>
-        <p className="text-gray-500 mt-1">Bienvenue {user.firstName || user.name} - {user.clubName || 'Damier Club'}</p>
+        <h2 className="font-serif text-2xl font-bold text-[#211b12]">Tableau de bord</h2>
+        <p className="mt-1 text-[#6d6250]">
+          Bienvenue {user?.firstName || user?.name}
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="border-[#e5dcc8]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Membres</CardTitle>
-            <Users className="text-blue-600" size={20} />
+            <CardTitle className="text-sm font-medium text-[#6d6250]">Membres</CardTitle>
+            <Users className="text-[#c99a3f]" size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{membersCount}</div>
-            <p className="text-xs text-green-600 mt-1">Enregistrés</p>
+            <div className="text-2xl font-bold text-[#211b12]">{membersCount ?? '—'}</div>
+            <p className="mt-1 text-xs text-[#6d6250]">enregistrés</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#e5dcc8]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Mes Notes</CardTitle>
-            <FileText className="text-blue-600" size={20} />
+            <CardTitle className="text-sm font-medium text-[#6d6250]">Notes</CardTitle>
+            <FileText className="text-[#c99a3f]" size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{stats?.totalNotes || 0}</div>
-            <p className="text-xs text-gray-500 mt-1">{stats?.pinnedNotes || 0} épinglées</p>
+            <div className="text-2xl font-bold text-[#211b12]">{stats?.totalNotes ?? '—'}</div>
+            <p className="mt-1 text-xs text-[#6d6250]">{stats?.pinnedNotes ?? 0} épinglées</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#e5dcc8]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Mon Club</CardTitle>
-            <Building2 className="text-blue-600" size={20} />
+            <CardTitle className="text-sm font-medium text-[#6d6250]">Mon club</CardTitle>
+            <Building2 className="text-[#c99a3f]" size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-base font-bold text-gray-900">{user.clubName || 'N/A'}</div>
-            <p className="text-xs text-gray-500 mt-1">{user.role || 'Membre'}</p>
+            <div className="text-base font-bold text-[#211b12]">{user?.clubName || '—'}</div>
+            <p className="mt-1 text-xs text-[#6d6250]">{user?.clubRole || user?.role || 'Membre'}</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="border-[#e5dcc8]">
           <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Activité</CardTitle>
-            <TrendingUp className="text-blue-600" size={20} />
+            <CardTitle className="text-sm font-medium text-[#6d6250]">Notes récentes</CardTitle>
+            <StickyNote className="text-[#c99a3f]" size={20} />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-gray-900">{notes?.length || 0}</div>
-            <p className="text-xs text-green-600 mt-1">+{Math.min(3, notes?.length || 0)} cette semaine</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Évolution des membres</CardTitle>
-            <p className="text-sm text-gray-500 mt-1">Nombre de membres par mois</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={performanceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="mois" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="membres" stroke="#3b82f6" strokeWidth={2} name="Membres" />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Activité par mois</CardTitle>
-            <p className="text-sm text-gray-500 mt-1">Nombre d'actions par mois</p>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={performanceData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="mois" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="membres" fill="#3b82f6" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="text-2xl font-bold text-[#211b12]">{notes?.length ?? 0}</div>
+            <p className="mt-1 text-xs text-[#6d6250]">au total</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Notes récentes - visibles par tous */}
-      <Card>
+      <Card className="border-[#e5dcc8]">
         <CardHeader>
           <CardTitle>Notes récentes</CardTitle>
-          <p className="text-sm text-gray-500 mt-1">Dernières notes créées</p>
+          <p className="mt-1 text-sm text-[#6d6250]">Dernières notes créées</p>
         </CardHeader>
         <CardContent>
           {!notes || notes.length === 0 ? (
-            <p className="text-gray-500 text-center py-8">Aucune note disponible</p>
+            <p className="py-8 text-center text-[#6d6250]">Aucune note disponible</p>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {notes.slice(0, 4).map((note) => (
                 <NoteCard key={note.id} note={note} />
               ))}

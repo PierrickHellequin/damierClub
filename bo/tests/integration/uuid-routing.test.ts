@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from 'vitest'
 describe('UUID Routing Integration Test', () => {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8090'
   let testUserId: string
-  let testUserEmail: string
+  let testToken: string
 
   beforeAll(async () => {
     // Créer un utilisateur de test
@@ -18,11 +18,12 @@ describe('UUID Routing Integration Test', () => {
     })
 
     expect(response.ok).toBe(true)
-    const user = await response.json()
+    // L'API renvoie { token, user } : le token JWT sert aux appels authentifiés
+    const { token, user } = await response.json()
     testUserId = user.id
-    testUserEmail = user.email
+    testToken = token
 
-    console.log('✅ Test user created:', { id: testUserId, email: testUserEmail })
+    console.log('✅ Test user created:', { id: testUserId })
   })
 
   it('should return UUID as string from registration', async () => {
@@ -36,7 +37,7 @@ describe('UUID Routing Integration Test', () => {
       }),
     })
 
-    const user = await response.json()
+    const { user } = await response.json()
 
     // Vérifier que l'ID est un UUID string
     expect(typeof user.id).toBe('string')
@@ -49,7 +50,7 @@ describe('UUID Routing Integration Test', () => {
   it('should accept full UUID in API endpoint (not truncated number)', async () => {
     // Appeler l'API avec l'UUID complet
     const response = await fetch(`${API_BASE}/api/members/${testUserId}`, {
-      headers: { 'X-User-Email': testUserEmail },
+      headers: { Authorization: `Bearer ${testToken}` },
     })
 
     // Si on reçoit 403, c'est que l'UUID a été tronqué
@@ -72,7 +73,7 @@ describe('UUID Routing Integration Test', () => {
   it('should REJECT numeric ID (old format)', async () => {
     // Tester avec un nombre (ancien format incorrect)
     const response = await fetch(`${API_BASE}/api/members/123`, {
-      headers: { 'X-User-Email': testUserEmail },
+      headers: { Authorization: `Bearer ${testToken}` },
       method: 'GET',
     })
 

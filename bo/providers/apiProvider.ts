@@ -1,45 +1,20 @@
-import { ApiListResponse } from "@/types/api";
-import { Member } from "@/types/member";
+import { apiCall } from "@/actions/api";
 
 interface CallOptions {
   url: string; // endpoint relatif (ex: 'members') ou absolu
   method?: string;
   body?: any;
   headers?: Record<string, string>;
-  raw?: boolean; // si true, ne parse pas JSON
+  raw?: boolean; // si true, renvoie un objet type Response (json() + headers.get)
 }
 
-function getBase() {
-  // En SSR (côté serveur Docker), utiliser l'URL interne du conteneur
-  // En client (navigateur), utiliser localhost pour accéder via le port mappé
-  if (typeof window === 'undefined') {
-    // Server-side: utiliser le nom du service Docker
-    return process.env.NEXT_PUBLIC_API_BASE || "http://api:8080";
-  } else {
-    // Client-side: utiliser localhost
-    return process.env.NEXT_PUBLIC_API_BASE_BROWSER || process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8090";
-  }
-}
+type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
-async function buildAuthHeaders(): Promise<Record<string, string>> {
-  const raw =
-    typeof window !== "undefined" ? localStorage.getItem("sessionUser") : null;
-  if (!raw) {
-    console.warn("No sessionUser found in localStorage");
-    return {};
-  }
-  try {
-    const user: Member = JSON.parse(raw);
-    console.log("Using email from localStorage:", user.email);
-    return {
-      "X-User-Email": user.email,
-    };
-  } catch (e) {
-    console.error("Failed to parse sessionUser:", e);
-    return {};
-  }
-}
-
+/**
+ * Toutes les requêtes passent par la Server Action apiCall :
+ * le JWT reste dans un cookie httpOnly côté serveur Next,
+ * le navigateur ne voit jamais ni token ni credentials.
+ */
 export const apiProvider = {
   async call<T = any>({
     url,
@@ -48,29 +23,32 @@ export const apiProvider = {
     headers = {},
     raw,
   }: CallOptions): Promise<T> {
-    const isAbsolute = /^https?:\/\//.test(url);
-    const fullUrl = isAbsolute
-      ? url
-      : `${getBase()}/api/${url.replace(/^\//, "")}`;
-    const authHeaders = await buildAuthHeaders();
-    const res = await fetch(fullUrl, {
-      method,
-      headers: {
-        "Content-Type": body ? "application/json" : "text/plain",
-        ...headers,
-        ...authHeaders,
-      },
-      body: body ? JSON.stringify(body) : undefined,
+    const res = await apiCall<T>({
+      endpoint: url,
+      method: method as HttpMethod,
+      body,
+      headers,
+      includeTotal: raw,
     });
-    if (res.status === 401) {
-      try {
-        localStorage.removeItem("sessionUser");
-      } catch {}
-      throw new Error("Non autorisé");
+
+    if (!res.success) {
+      throw new Error(res.error || "Erreur réseau");
     }
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    if (raw) return res as unknown as T;
-    return res.json() as Promise<T>;
+
+    if (raw) {
+      // Shim compatible avec l'usage existant : res.json() + res.headers.get('X-Total-Count')
+      const total = res.total;
+      const shim = {
+        json: async () => res.data,
+        headers: {
+          get: (name: string) =>
+            name.toLowerCase() === "x-total-count" && total != null ? String(total) : null,
+        },
+      };
+      return shim as unknown as T;
+    }
+
+    return res.data as T;
   },
 
   // Helper methods

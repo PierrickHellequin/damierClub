@@ -1,21 +1,20 @@
 "use client";
-import { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User } from '@/types/member';
+import { loginAction, registerAction, logoutAction, getCurrentUser } from '@/actions/auth';
 
-// Types utilisateur et contexte
+// La session vit dans des cookies httpOnly côté serveur :
+// ce provider ne stocke rien dans le navigateur (ni localStorage, ni cookie lisible).
 
 interface AuthContextValue {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
   register: (name: string, email: string, password: string) => Promise<User>;
-  logout: () => void;
-  fetchAuth: (url: string, options?: RequestInit) => Promise<Response>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || 'http://localhost:8090';
-const STORAGE_KEY = 'sessionUser';
 
 interface AuthProviderProps { children: ReactNode }
 
@@ -24,61 +23,34 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    try {
-      const raw = typeof window !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
-      if (raw) setUser(JSON.parse(raw));
-    } catch { /* ignore */ }
-    setLoading(false);
+    let active = true;
+    getCurrentUser()
+      .then((u) => { if (active) setUser(u); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
   }, []);
 
-  function persist(u: User) {
-    setUser(u);
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(u)); } catch { }
-  }
-
   async function login(email: string, password: string): Promise<User> {
-    const res = await fetch(`${API_BASE}/api/internal/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    if (res.status === 401) throw new Error('Identifiants invalides');
-    if (!res.ok) throw new Error('Erreur serveur');
-    const data: User = await res.json();
-    persist(data);
-    return data;
+    const res = await loginAction(email, password);
+    if (!res.success || !res.user) throw new Error(res.error || 'Erreur de connexion');
+    setUser(res.user);
+    return res.user;
   }
 
   async function register(name: string, email: string, password: string): Promise<User> {
-    const res = await fetch(`${API_BASE}/api/internal/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
-    });
-    if (res.status === 409) throw new Error('Email déjà utilisé');
-    if (!res.ok) throw new Error("Erreur d'inscription");
-    const data: User = await res.json();
-    persist(data);
-    return data;
+    const res = await registerAction(name, email, password);
+    if (!res.success || !res.user) throw new Error(res.error || "Erreur d'inscription");
+    setUser(res.user);
+    return res.user;
   }
 
-  function logout() {
+  async function logout(): Promise<void> {
+    await logoutAction();
     setUser(null);
-    try { localStorage.removeItem(STORAGE_KEY); } catch { }
   }
-
-  const fetchAuth = useCallback(async (url: string, options: RequestInit = {}): Promise<Response> => {
-    if (!user) throw new Error('Non authentifié');
-    const headers = { ...(options.headers || {}), 'X-User-Email': user.email } as Record<string, string>;
-    const res = await fetch(url, { ...options, headers });
-    if (res.status === 401) logout();
-    return res;
-  }, [user]);
-
-  const value: AuthContextValue = { user, loading, login, register, logout, fetchAuth };
 
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );

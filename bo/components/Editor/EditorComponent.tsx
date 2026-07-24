@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import EditorJS, { OutputData } from '@editorjs/editorjs';
+import EditorJS, { OutputData, ToolConstructable } from '@editorjs/editorjs';
 import Header from '@editorjs/header';
 import List from '@editorjs/list';
 import Paragraph from '@editorjs/paragraph';
@@ -138,7 +138,7 @@ export default function EditorComponent(props: EditorComponentProps) {
           data: initialData,
           tools: {
             header: {
-              class: Header,
+              class: Header as unknown as ToolConstructable,
               config: {
                 placeholder: 'Titre',
                 levels: [1, 2, 3, 4, 5, 6],
@@ -146,13 +146,13 @@ export default function EditorComponent(props: EditorComponentProps) {
               },
             },
             paragraph: {
-              class: Paragraph,
+              class: Paragraph as unknown as ToolConstructable,
               config: {
                 placeholder: 'Paragraphe',
               },
             },
             list: {
-              class: List,
+              class: List as unknown as ToolConstructable,
               config: {
                 defaultStyle: 'unordered',
               },
@@ -177,7 +177,7 @@ export default function EditorComponent(props: EditorComponentProps) {
               class: InlineCode,
             },
             table: {
-              class: Table,
+              class: Table as unknown as ToolConstructable,
               config: {
                 rows: 2,
                 cols: 3,

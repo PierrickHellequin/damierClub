@@ -1,6 +1,7 @@
 package com.damier.damierclub.controller;
 
 import com.damier.damierclub.model.Member;
+import com.damier.damierclub.security.JwtService;
 import com.damier.damierclub.service.MemberService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -15,9 +16,11 @@ import java.util.UUID;
 public class InternalAuthController {
 
     private final MemberService memberService;
+    private final JwtService jwtService;
 
-    public InternalAuthController(MemberService memberService) {
+    public InternalAuthController(MemberService memberService, JwtService jwtService) {
         this.memberService = memberService;
+        this.jwtService = jwtService;
     }
 
     public record RegisterRequest(@NotBlank String name, @Email String email, @NotBlank String password) {}
@@ -32,19 +35,23 @@ public class InternalAuthController {
         }
     }
 
+    public record AuthResponse(String token, MemberDto user) {}
+
     @PostMapping("/register")
-    public ResponseEntity<MemberDto> register(@Valid @RequestBody RegisterRequest req) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest req) {
         if (memberService.findByEmail(req.email()).isPresent()) {
             return ResponseEntity.status(409).build();
         }
         Member created = memberService.register(req.name(), req.email(), req.password());
-        return ResponseEntity.ok(MemberDto.from(created));
+        String token = jwtService.issueToken(created.getEmail(), created.getRole());
+        return ResponseEntity.ok(new AuthResponse(token, MemberDto.from(created)));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<MemberDto> login(@Valid @RequestBody LoginRequest req) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest req) {
         return memberService.authenticate(req.email(), req.password())
-                .map(m -> ResponseEntity.ok(MemberDto.from(m)))
+                .map(m -> ResponseEntity.ok(
+                        new AuthResponse(jwtService.issueToken(m.getEmail(), m.getRole()), MemberDto.from(m))))
                 .orElseGet(() -> ResponseEntity.status(401).build());
     }
 }

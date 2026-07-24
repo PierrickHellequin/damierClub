@@ -1,5 +1,5 @@
 import type { Member } from './member';
-import type { Club } from './club';
+import type { Club } from './member';
 
 export enum NoteVisibility {
   PRIVATE = 'PRIVATE',

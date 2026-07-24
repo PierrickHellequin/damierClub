@@ -1,5 +1,15 @@
 # Sécurité - La Réalité
 
+> **✅ FAIT (juillet 2026)** — La solution JWT + BCrypt décrite ci-dessous est implémentée :
+> - API : `JwtService` + `JwtAuthenticationFilter` (Bearer), l'ancien `HeaderAuthenticationFilter`
+>   basé sur `X-User-Email` est supprimé. BCrypt était déjà en place (`MemberService`).
+> - BO : JWT en cookie httpOnly (`auth-token`), plus aucun localStorage, tous les appels API
+>   passent par les Server Actions, routes protégées par `bo/middleware.ts`.
+> - Secret : env `JWT_SECRET` (min. 32 octets), expiration 12 h (`JWT_EXPIRATION_HOURS`).
+> - Reste à faire : migrer les tests Cypress e2e (ils utilisent encore `X-User-Email`
+>   pour préparer leurs données) et définir un vrai `JWT_SECRET` en production.
+> Le document d'origine est conservé ci-dessous pour l'historique du raisonnement.
+
 ## ⚠️ Constat : Les Server Actions ne résolvent pas le problème
 
 ### Ce que j'ai découvert

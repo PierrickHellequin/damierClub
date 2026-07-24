@@ -59,7 +59,7 @@ export default function NewClubPage() {
       // Prepare data for API
       const clubData = {
         ...formData,
-        creationDate: formData.creationDate ? `${formData.creationDate}-01-01` : null,
+        creationDate: formData.creationDate ? `${formData.creationDate}-01-01` : undefined,
       };
 
       await clubProvider.createClub(clubData);

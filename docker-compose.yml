@@ -26,6 +26,8 @@ services:
       SPRING_DATASOURCE_USERNAME: clubuser
       SPRING_DATASOURCE_PASSWORD: clubpass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      # En prod : définir JWT_SECRET dans un .env (min. 32 octets), jamais commité
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-jwt-damierclub-0123456789abcdef}
     networks:
       - club-net
 
