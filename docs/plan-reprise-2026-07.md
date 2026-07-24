@@ -74,11 +74,40 @@ Deux vigilances assumées en contrepartie :
 - Rôle contributeur (saisie actus/résultats) distinct d'admin (réglages, comptes).
 - Si une saisie nécessite une explication, le formulaire est raté.
 
-## 5. Décisions à trancher
+## 5. Décisions — recommandations actées (juillet 2026)
 
-1. **Domaine** du site Wattrelos (ex : damier-wattrelos.fr) — à acheter.
-2. **Site public dans l'app Next existante** (recommandé) ou app séparée ?
-3. **Maquettes avant d'aller voir le club** : 2 maquettes (accueil public + écran BO
-   « saisir un résultat ») pour trancher sur du visible et arriver avec un truc qui claque.
-4. Modèle pour Wattrelos : gratuit contre rôle de club-référence (recommandation de
-   l'étude, §8 de `proposition-site-club-dames.md`).
+Recommandations fermes, à invalider explicitement si désaccord — sinon c'est le plan.
+
+1. **Domaine : `damier-wattrelos.fr`** (~10 €/an). Court, lisible, dit le jeu et la ville.
+   Pas de `.com` (club local), pas de nom de produit dans le domaine du club. L'acheter
+   tôt, avant d'aller voir le club — arriver avec « votre site : damier-wattrelos.fr »
+   est un argument en soi.
+2. **Site public = routes publiques dans l'app Next existante** (`bo/`), `/admin` protégé
+   par middleware. Pas de 3e service : moins de RAM sur le VPS, un seul déploiement front,
+   et les composants (cartes article, listes résultats) se partagent naturellement entre
+   public et admin. On renommera `bo/` en `web/` à ce moment-là pour refléter son rôle.
+3. **Maquettes AVANT d'aller voir le club : oui, et seulement 2.** Accueil public
+   (identité du club, dernière actu, prochain événement, un résultat marquant) + écran
+   admin « saisir un résultat ». C'est le couple qui prouve les deux promesses : « votre
+   site claque » et « n'importe quel bénévole le nourrit ». Pas de 3e maquette — le reste
+   se décide sur produit réel.
+4. **Wattrelos = gratuit, contractualisé simplement.** Développement offert ; à partir de
+   l'an 2, hébergement+domaine à prix coûtant (~5 €/mois). Contrepartie par écrit (un
+   mail suffit) : droit de citer le club en référence (captures, chiffres), témoignage,
+   et mise en relation active avec la ligue Hauts-de-France et la FFJD. On ne fait pas
+   payer le cobaye ; on vend aux suivants (setup 300-800 € + 10-25 €/mois).
+5. **Nom du produit : plus tard.** « DamierClub » reste le nom de code. Le naming se
+   décide quand un 2e club paie — pas avant, c'est du temps perdu sinon.
+6. **Paiement inscriptions : lien HelloAsso, jamais de paiement maison.** Zéro conformité
+   à porter, outil déjà connu des trésoriers d'asso.
+7. **Hébergement : le VPS Hostinger existant**, conteneurs Docker dédiés + Postgres
+   mutualisé (une base par club au moment du clonage). Pas de cloud managé : coût et
+   souveraineté.
+8. **Ce qu'on ne fait pas** (rappel de l'étude, pour ne pas re-dériver) : pas de
+   marketplace « trouve ton club », pas de multi-tenant avant 5 clubs payants, pas de
+   fonctionnalité que Sportsregions offre déjà gratuitement sans y ajouter l'angle
+   « jeux de l'esprit ».
+
+### Prochaine action concrète
+Chantier 1 (sécurité JWT+BCrypt) en parallèle des 2 maquettes. Puis rendez-vous club
+avec maquettes + domaine acheté.
