@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Saisir un résultat (maquette)</title>
+<style>
+  :root {
+    --bg: #f7f7f5;
+    --carte: #ffffff;
+    --bord: #e4e2dd;
+    --encre: #1c1917;
+    --encre-2: #57534e;
+    --muted: #a8a29e;
+    --primaire: #1c1917;
+    --ambre: #e8a33d;
+    --ambre-fond: #fdf3e0;
+    --vert: #3d7a4e;
+    --vert-fond: #e9f3ec;
+    --rouge: #b5502a;
+    --radius: 10px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg); color: var(--encre); font-size: 15px; line-height: 1.5;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  .layout { display: grid; grid-template-columns: 232px 1fr; min-height: 100vh; }
+
+  /* ===== Sidebar ===== */
+  aside {
+    background: var(--carte); border-right: 1px solid var(--bord);
+    padding: 20px 14px; display: flex; flex-direction: column; gap: 4px;
+  }
+  .side-brand { display: flex; align-items: center; gap: 10px; padding: 4px 10px 18px; }
+  .mini-damier {
+    width: 30px; height: 30px; border-radius: 6px; overflow: hidden;
+    display: grid; grid-template-columns: repeat(4, 1fr); border: 1.5px solid var(--ambre);
+  }
+  .mini-damier span:nth-child(odd) { background: #f5efe2; }
+  .mini-damier span:nth-child(even) { background: #2a2620; }
+  .side-brand b { font-size: 14px; }
+  .side-brand small { display: block; font-size: 11px; color: var(--muted); font-weight: 500; }
+  aside nav a {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px; border-radius: 8px; font-weight: 600; font-size: 14px; color: var(--encre-2);
+  }
+  aside nav a:hover { background: #f2f1ee; }
+  aside nav a.actif { background: var(--encre); color: #fff; }
+  aside nav a .ico { width: 18px; text-align: center; }
+  .side-bas { margin-top: auto; padding: 10px 12px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--bord); }
+  .side-bas b { display: block; color: var(--encre-2); }
+
+  /* ===== Main ===== */
+  main { padding: 0 36px 48px; }
+  .topbar {
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 0; margin-bottom: 24px; border-bottom: 1px solid var(--bord);
+  }
+  .fil { font-size: 13px; color: var(--muted); font-weight: 600; }
+  .fil b { color: var(--encre); }
+  .topbar .droite { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    font-weight: 700; font-size: 14px; padding: 10px 18px; border-radius: var(--radius);
+    border: 1px solid transparent; font-family: inherit;
+  }
+  .btn-primaire { background: var(--encre); color: #fff; }
+  .btn-primaire:hover { background: #33302c; }
+  .btn-contour { background: var(--carte); border-color: var(--bord); color: var(--encre); }
+  .btn-contour:hover { background: #f2f1ee; }
+  .btn-lien { background: none; color: var(--encre-2); font-weight: 600; padding: 10px 8px; }
+
+  h1 { font-size: 24px; font-weight: 800; letter-spacing: -.3px; }
+  .sous-titre { color: var(--encre-2); margin-top: 4px; font-size: 14px; }
+
+  .badge { font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 999px; }
+  .badge-brouillon { background: var(--ambre-fond); color: #9a6b17; border: 1px solid #f0dcb2; }
+
+  .carte {
+    background: var(--carte); border: 1px solid var(--bord); border-radius: 14px;
+    padding: 24px; margin-top: 20px;
+  }
+  .carte h2 { font-size: 16px; font-weight: 800; margin-bottom: 4px; }
+  .carte .aide { font-size: 13px; color: var(--muted); margin-bottom: 18px; }
+
+  /* Formulaire compétition */
+  .grille-form { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; }
+  .champ label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+  .champ .controle {
+    display: flex; align-items: center; justify-content: space-between;
+    border: 1px solid var(--bord); border-radius: var(--radius); padding: 10px 14px;
+    background: #fff; font-weight: 600; font-size: 14px; color: var(--encre);
+  }
+  .champ .controle .chevron { color: var(--muted); font-size: 12px; }
+  .champ .indice { font-size: 12px; color: var(--muted); margin-top: 5px; }
+
+  /* Tableau de saisie */
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    text-align: left; font-size: 12px; letter-spacing: .6px; text-transform: uppercase;
+    color: var(--muted); font-weight: 700; padding: 10px 12px; border-bottom: 1px solid var(--bord);
+  }
+  tbody td { padding: 8px 12px; border-bottom: 1px solid #f0efec; }
+  .cell-input {
+    border: 1px solid var(--bord); border-radius: 8px; padding: 8px 12px;
+    font-size: 14px; font-weight: 600; background: #fff; width: 100%;
+  }
+  .cell-pos { width: 64px; text-align: center; font-weight: 800; color: var(--encre-2); }
+  .cell-points { width: 96px; }
+  .joueur-ok { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; }
+  .pastille { width: 8px; height: 8px; border-radius: 50%; background: var(--vert); }
+  .tag-club { font-size: 11px; font-weight: 700; color: var(--vert); background: var(--vert-fond); padding: 2px 8px; border-radius: 999px; }
+  .suggestion {
+    position: relative;
+  }
+  .suggestion .liste {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 10;
+    background: #fff; border: 1px solid var(--bord); border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.10); overflow: hidden;
+  }
+  .suggestion .liste div { padding: 9px 14px; font-size: 14px; font-weight: 600; display: flex; justify-content: space-between; }
+  .suggestion .liste div.sel { background: #f5f0e4; }
+  .suggestion .liste small { color: var(--muted); font-weight: 500; }
+  .btn-supprimer { color: var(--muted); background: none; border: none; cursor: pointer; font-size: 16px; }
+  .btn-supprimer:hover { color: var(--rouge); }
+  .ajout-ligne {
+    margin-top: 12px; display: flex; gap: 14px; align-items: center;
+  }
+  .ou { color: var(--muted); font-size: 13px; font-weight: 600; }
+  .zone-coller {
+    flex: 1; border: 1.5px dashed var(--bord); border-radius: var(--radius);
+    padding: 12px 16px; font-size: 13px; color: var(--muted); background: #fbfbfa;
+  }
+  .zone-coller b { color: var(--encre-2); }
+
+  /* Barre d'actions */
+  .barre-actions {
+    position: sticky; bottom: 0; margin-top: 24px;
+    background: var(--carte); border: 1px solid var(--bord); border-radius: 14px;
+    padding: 14px 20px; display: flex; align-items: center; gap: 12px;
+    box-shadow: 0 -6px 24px rgba(0,0,0,.05);
+  }
+  .barre-actions .etat { font-size: 13px; color: var(--muted); }
+  .barre-actions .droite { margin-left: auto; display: flex; gap: 10px; }
+  .btn-publier { background: var(--vert); color: #fff; }
+  .btn-publier:hover { background: #326440; }
+
+  @media (max-width: 860px) {
+    .layout { grid-template-columns: 1fr; }
+    aside { flex-direction: row; overflow-x: auto; }
+    .grille-form { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <aside>
+    <div class="side-brand">
+      <div class="mini-damier" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      <div><b>Damier Wattrelos</b><small>Administration</small></div>
+    </div>
+    <nav aria-label="Navigation admin">
+      <a href="#"><span class="ico">✍️</span> Actus</a>
+      <a href="#"><span class="ico">📅</span> Agenda</a>
+      <a href="#" class="actif"><span class="ico">🏆</span> Résultats</a>
+      <a href="#"><span class="ico">🎪</span> Tournois</a>
+      <a href="#"><span class="ico">📄</span> Pages</a>
+      <a href="#"><span class="ico">🖼️</span> Médias</a>
+      <a href="#"><span class="ico">⚙️</span> Réglages</a>
+    </nav>
+    <div class="side-bas"><b>Gilbert C.</b> Administrateur · <a href="#" style="text-decoration:underline">déconnexion</a></div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <span class="fil">Résultats · <b>Nouveau résultat</b></span>
+      <div class="droite">
+        <span class="badge badge-brouillon">Brouillon — non visible sur le site</span>
+        <button class="btn btn-contour">👁 Voir sur le site</button>
+      </div>
+    </div>
+
+    <h1>Saisir un résultat</h1>
+    <p class="sous-titre">Choisissez la compétition, ajoutez les joueurs, publiez. C'est tout.</p>
+
+    <div class="carte">
+      <h2>1 · La compétition</h2>
+      <p class="aide">Elle apparaîtra sur le site dans « Résultats », classée par saison.</p>
+      <div class="grille-form">
+        <div class="champ">
+          <label for="competition">Compétition</label>
+          <div class="controle" id="competition">Championnat du Nord <span class="chevron">▼</span></div>
+          <p class="indice">Il manque une compétition ? <a href="#" style="text-decoration:underline">L'ajouter</a></p>
+        </div>
+        <div class="champ">
+          <label for="saison">Saison</label>
+          <div class="controle" id="saison">2025 – 2026 <span class="chevron">▼</span></div>
+        </div>
+        <div class="champ">
+          <label for="date">Date</label>
+          <div class="controle" id="date">14 juin 2026 <span class="chevron">📅</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="carte">
+      <h2>2 · Le classement</h2>
+      <p class="aide">Tapez 2 lettres : les joueurs du club sont proposés automatiquement (import FFJD). Un joueur extérieur ? Tapez simplement son nom.</p>
+      <table>
+        <thead>
+          <tr><th style="width:64px">Place</th><th>Joueur</th><th style="width:110px">Points</th><th style="width:44px"></th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="cell-pos">1</td>
+            <td><span class="joueur-ok"><span class="pastille"></span> DELCROIX Antoine <span class="tag-club">Wattrelos</span></span></td>
+            <td><input class="cell-input cell-points" value="14" aria-label="Points de Antoine Delcroix"></td>
+            <td><button class="btn-supprimer" aria-label="Retirer cette ligne">✕</button></td>
+          </tr>
+          <tr>
+            <td class="cell-pos">2</td>
+            <td><span class="joueur-ok"><span class="pastille"></span> VANDEN B. Maxime <span class="tag-club">Wattrelos</span></span></td>
+            <td><input class="cell-input cell-points" value="12" aria-label="Points de Maxime Vanden B."></td>
+            <td><button class="btn-supprimer" aria-label="Retirer cette ligne">✕</button></td>
+          </tr>
+          <tr>
+            <td class="cell-pos">3</td>
+            <td>
+              <div class="suggestion">
+                <input class="cell-input" value="lef" aria-label="Nom du joueur">
+                <div class="liste" role="listbox">
+                  <div class="sel" role="option" aria-selected="true">LEFEBVRE Julien <small>Wattrelos · 1842 pts</small></div>
+                  <div role="option" aria-selected="false">LEFRANC Odile <small>Wattrelos · 1710 pts</small></div>
+                </div>
+              </div>
+            </td>
+            <td><input class="cell-input cell-points" placeholder="—" aria-label="Points"></td>
+            <td><button class="btn-supprimer" aria-label="Retirer cette ligne">✕</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="ajout-ligne">
+        <button class="btn btn-contour">＋ Ajouter un joueur</button>
+        <span class="ou">ou</span>
+        <div class="zone-coller"><b>Coller depuis un tableur</b> — copiez vos colonnes place / nom / points dans Excel ou LibreOffice et collez-les ici, le tableau se remplit tout seul.</div>
+      </div>
+    </div>
+
+    <div class="barre-actions">
+      <span class="etat">Enregistré automatiquement il y a quelques secondes · rien n'est visible tant que vous n'avez pas publié</span>
+      <div class="droite">
+        <button class="btn btn-lien">Enregistrer le brouillon</button>
+        <button class="btn btn-contour">Prévisualiser</button>
+        <button class="btn btn-publier">Publier sur le site</button>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+</body>
+</html>
