@@ -3,219 +3,220 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Damier Club de Wattrelos — Maquette accueil v2</title>
+<title>Damier Club de Wattrelos — Maquette accueil v3</title>
 <style>
   :root {
-    --noir: #16130f;
-    --noir-2: #221e18;
-    --ambre: #f5a623;
-    --orange: #ef6c2d;
-    --brique: #d43f1f;
-    --creme: #faf5ec;
+    --noir: #14110d;
+    --noir-2: #1e1a14;
+    --or: #c99a3f;
+    --or-clair: #e3b95c;
+    --creme: #f7f2e8;
     --blanc: #fffdf8;
-    --encre: #241d12;
-    --encre-2: #6d604a;
-    --vert: #2f8f52;
-    --grad-feu: linear-gradient(100deg, var(--ambre), var(--orange) 55%, var(--brique));
+    --encre: #211b12;
+    --encre-2: #6d6250;
+    --ligne: #e5dcc8;
+    --vert: #2e6b45;
+    --brique: #a34a26;
+    --serif: Georgia, "Times New Roman", serif;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
-  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--creme); color: var(--encre); line-height: 1.55; overflow-x: hidden; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: var(--creme); color: var(--encre); line-height: 1.6; overflow-x: hidden; }
   a { color: inherit; }
-  img { max-width: 100%; }
 
-  /* ====== Animations ====== */
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
   @keyframes defile { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @keyframes flotte { 0%,100% { transform: translateY(0) rotate(-6deg); } 50% { transform: translateY(-16px) rotate(-2deg); } }
-  @keyframes flotte2 { 0%,100% { transform: translateY(0) rotate(8deg); } 50% { transform: translateY(-22px) rotate(3deg); } }
-  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(47,143,82,.45);} 60% { box-shadow: 0 0 0 12px rgba(47,143,82,0);} }
-  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s ease; }
   .reveal.vu { opacity: 1; transform: none; }
 
+  .surtitre { font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: var(--or); }
+
   /* ====== Nav ====== */
-  header {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(22,19,15,.88); backdrop-filter: blur(10px);
-    color: var(--creme);
-  }
-  .header-inner { max-width: 1160px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; gap: 14px; }
-  .logo-damier { width: 38px; height: 38px; border-radius: 9px; overflow: hidden; display: grid; grid-template-columns: repeat(4,1fr); border: 2px solid var(--ambre); flex-shrink: 0; }
+  header { position: sticky; top: 0; z-index: 100; background: rgba(20,17,13,.92); backdrop-filter: blur(10px); color: var(--creme); border-bottom: 1px solid rgba(201,154,63,.25); }
+  .header-inner { max-width: 1160px; margin: 0 auto; padding: 14px 24px; display: flex; align-items: center; gap: 14px; }
+  .logo-damier { width: 38px; height: 38px; border-radius: 6px; overflow: hidden; display: grid; grid-template-columns: repeat(4,1fr); border: 1.5px solid var(--or); flex-shrink: 0; }
   .logo-damier span { aspect-ratio: 1; }
   .logo-damier span:nth-child(odd) { background: var(--creme); }
   .logo-damier span:nth-child(even) { background: var(--noir-2); }
-  .brand { font-weight: 900; font-size: 16px; letter-spacing: .2px; }
-  .brand small { display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; background: var(--grad-feu); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  nav { margin-left: auto; display: flex; gap: 2px; }
-  nav a { text-decoration: none; font-size: 14px; font-weight: 700; padding: 9px 14px; border-radius: 9px; color: #cfc6b4; }
-  nav a:hover { color: #fff; background: rgba(255,255,255,.07); }
-  .nav-cta { background: var(--grad-feu); color: #fff !important; margin-left: 8px; box-shadow: 0 4px 16px rgba(239,108,45,.4); }
+  .brand { font-weight: 800; font-size: 16px; letter-spacing: .2px; }
+  .brand small { display: block; font-size: 10px; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--or-clair); }
+  nav { margin-left: auto; display: flex; gap: 2px; align-items: center; }
+  nav a { text-decoration: none; font-size: 14px; font-weight: 600; padding: 9px 14px; border-radius: 8px; color: #cfc6b4; }
+  nav a:hover { color: #fff; }
+  .nav-cta { border: 1px solid var(--or); color: var(--or-clair) !important; margin-left: 10px; }
+  .nav-cta:hover { background: var(--or); color: var(--noir) !important; }
 
   /* ====== Hero ====== */
   .hero {
-    position: relative; color: var(--creme); overflow: hidden;
-    background:
-      radial-gradient(1100px 500px at 80% -10%, rgba(239,108,45,.28), transparent 60%),
-      radial-gradient(700px 400px at 10% 110%, rgba(245,166,35,.16), transparent 60%),
-      var(--noir);
-    padding: 64px 24px 150px;
+    position: relative; color: var(--creme); overflow: hidden; background: var(--noir);
+    padding: 92px 24px 110px;
   }
-  .hero::after { /* damier incliné en fond */
-    content: ""; position: absolute; right: -140px; top: -80px; width: 620px; height: 620px;
-    background: repeating-conic-gradient(rgba(245,166,35,.10) 0% 25%, transparent 0% 50%) 0 0 / 124px 124px;
-    transform: rotate(12deg); pointer-events: none;
+  .hero::before { /* damier filigrane */
+    content: ""; position: absolute; right: -180px; top: -120px; width: 760px; height: 760px;
+    background: repeating-conic-gradient(rgba(201,154,63,.07) 0% 25%, transparent 0% 50%) 0 0 / 152px 152px;
+    transform: rotate(10deg); pointer-events: none;
+  }
+  .hero::after { /* lueur */
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(900px 420px at 78% 0%, rgba(201,154,63,.16), transparent 65%);
+    pointer-events: none;
   }
   .hero-inner { max-width: 1160px; margin: 0 auto; position: relative; z-index: 2; }
-  .hero .badge-ligne { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 22px; animation: fadeUp .7s ease both; }
-  .chip { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; padding: 7px 14px; border-radius: 999px; border: 1px solid rgba(245,166,35,.5); color: var(--ambre); }
-  .chip.plein { background: var(--grad-feu); color: #fff; border: none; }
+  .hero .surtitre { display: block; margin-bottom: 20px; animation: fadeUp .8s ease both; }
   .hero h1 {
-    font-size: clamp(42px, 7vw, 84px); font-weight: 900; line-height: .98; letter-spacing: -2px;
-    max-width: 11ch; animation: fadeUp .7s .1s ease both;
+    font-family: var(--serif); font-size: clamp(42px, 6.5vw, 78px); font-weight: 700;
+    line-height: 1.04; letter-spacing: -1px; max-width: 16ch; animation: fadeUp .8s .12s ease both;
   }
-  .hero h1 .feu { background: var(--grad-feu); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .hero p.chapo { margin-top: 22px; font-size: 19px; color: #d6cdba; max-width: 52ch; animation: fadeUp .7s .2s ease both; }
-  .hero-cta { margin-top: 32px; display: flex; gap: 14px; flex-wrap: wrap; animation: fadeUp .7s .3s ease both; }
-  .btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 800; font-size: 16px; padding: 15px 28px; border-radius: 14px; transition: transform .15s ease, box-shadow .15s ease; }
-  .btn:hover { transform: translateY(-3px); }
-  .btn-feu { background: var(--grad-feu); color: #fff; box-shadow: 0 10px 30px rgba(239,108,45,.45); }
-  .btn-feu:hover { box-shadow: 0 16px 40px rgba(239,108,45,.55); }
-  .btn-verre { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.18); color: var(--creme); backdrop-filter: blur(6px); }
-  /* pions flottants */
-  .pion-flottant { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
-  .pf1 { width: 92px; height: 92px; right: 16%; top: 24%; background: radial-gradient(circle at 32% 28%, #fffdf5, #d8cdb0 72%); box-shadow: inset 0 -8px 14px rgba(0,0,0,.35), 0 24px 40px rgba(0,0,0,.5); animation: flotte 7s ease-in-out infinite; }
-  .pf2 { width: 60px; height: 60px; right: 7%; top: 56%; background: radial-gradient(circle at 32% 28%, #6e5b45, #241d14 75%); box-shadow: inset 0 -6px 10px rgba(0,0,0,.55), 0 18px 30px rgba(0,0,0,.55); animation: flotte2 9s ease-in-out infinite; }
-  .pf3 { width: 40px; height: 40px; right: 26%; top: 66%; background: radial-gradient(circle at 32% 28%, #ffd98a, var(--orange) 78%); box-shadow: 0 14px 24px rgba(239,108,45,.4); animation: flotte 11s 1s ease-in-out infinite; }
+  .hero h1 em { font-style: italic; color: var(--or-clair); }
+  .hero p.chapo { margin-top: 24px; font-size: 18px; color: #cfc6b4; max-width: 54ch; animation: fadeUp .8s .22s ease both; }
+  .hero-cta { margin-top: 36px; display: flex; gap: 14px; flex-wrap: wrap; animation: fadeUp .8s .32s ease both; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; font-weight: 700; font-size: 15px; padding: 14px 28px; border-radius: 10px; transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-or { background: var(--or); color: var(--noir); box-shadow: 0 10px 30px rgba(201,154,63,.35); }
+  .btn-or:hover { background: var(--or-clair); }
+  .btn-contour { border: 1px solid rgba(255,255,255,.25); color: var(--creme); }
+  .btn-contour:hover { border-color: var(--or); color: var(--or-clair); }
+  .hero .filet-bas { margin-top: 64px; display: flex; gap: 34px; flex-wrap: wrap; animation: fadeUp .8s .42s ease both; }
+  .fait { border-left: 2px solid var(--or); padding-left: 16px; }
+  .fait b { display: block; font-family: var(--serif); font-size: 22px; letter-spacing: .3px; }
+  .fait span { font-size: 13px; color: #a89b83; }
 
   /* ====== Bandeau défilant ====== */
-  .marquee { background: var(--grad-feu); color: #fff; overflow: hidden; padding: 11px 0; position: relative; z-index: 3; transform: rotate(-1.2deg) scale(1.02); margin-top: -52px; box-shadow: 0 10px 30px rgba(212,63,31,.35); }
-  .marquee-piste { display: flex; width: max-content; animation: defile 26s linear infinite; font-weight: 800; font-size: 15px; letter-spacing: .4px; white-space: nowrap; }
-  .marquee-piste span { padding: 0 28px; }
-  .marquee-piste .sep { opacity: .7; }
+  .marquee { background: var(--noir-2); border-top: 1px solid rgba(201,154,63,.3); border-bottom: 1px solid rgba(201,154,63,.3); color: #d8cfbc; overflow: hidden; padding: 12px 0; }
+  .marquee-piste { display: flex; width: max-content; animation: defile 38s linear infinite; font-size: 13px; font-weight: 600; letter-spacing: 1.8px; text-transform: uppercase; white-space: nowrap; }
+  .marquee-piste span { padding: 0 30px; }
+  .marquee-piste .sep { color: var(--or); }
 
   /* ====== Sections ====== */
-  section { padding: 74px 24px; }
+  section { padding: 84px 24px; }
   .inner { max-width: 1160px; margin: 0 auto; }
-  .sec-tete { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 34px; flex-wrap: wrap; }
-  .sec-tete .sur { font-size: 12px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; color: var(--orange); display: block; margin-bottom: 6px; }
-  .sec-tete h2 { font-size: clamp(30px, 4vw, 44px); font-weight: 900; letter-spacing: -1px; line-height: 1.02; }
-  .sec-tete .tout { margin-left: auto; font-weight: 800; font-size: 15px; color: var(--brique); text-decoration: none; border-bottom: 2px solid var(--ambre); padding-bottom: 2px; }
+  .sec-tete { display: flex; align-items: flex-end; gap: 20px; margin-bottom: 38px; flex-wrap: wrap; }
+  .sec-tete h2 { font-family: var(--serif); font-size: clamp(30px, 4vw, 42px); font-weight: 700; letter-spacing: -.5px; line-height: 1.05; margin-top: 8px; }
+  .sec-tete .tout { margin-left: auto; font-weight: 700; font-size: 14px; color: var(--brique); text-decoration: none; border-bottom: 1px solid var(--or); padding-bottom: 3px; }
+  .sec-tete .tout:hover { color: var(--encre); }
 
-  /* ====== ACTUS (la star) ====== */
-  .actus-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 22px; }
+  /* ====== Actus ====== */
+  .actus-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 24px; }
   .actu-une {
-    position: relative; border-radius: 22px; overflow: hidden; min-height: 460px;
+    position: relative; border-radius: 16px; overflow: hidden; min-height: 470px;
     display: flex; align-items: flex-end; text-decoration: none;
     background:
-      linear-gradient(10deg, rgba(22,19,15,.92) 22%, rgba(22,19,15,.25) 60%, rgba(22,19,15,.05)),
-      radial-gradient(600px 300px at 75% 20%, rgba(245,166,35,.5), transparent 65%),
-      repeating-conic-gradient(#2c2317 0% 25%, #1c1712 0% 50%) 0 0 / 88px 88px;
-    box-shadow: 0 24px 60px rgba(36,29,18,.25);
+      linear-gradient(8deg, rgba(20,17,13,.93) 26%, rgba(20,17,13,.35) 62%, rgba(20,17,13,.08)),
+      radial-gradient(560px 300px at 72% 18%, rgba(201,154,63,.35), transparent 65%),
+      repeating-conic-gradient(#28221a 0% 25%, #191510 0% 50%) 0 0 / 92px 92px;
+    box-shadow: 0 26px 60px rgba(33,27,18,.22);
     transition: transform .2s ease;
   }
   .actu-une:hover { transform: translateY(-4px); }
-  .photo-note { position: absolute; top: 16px; right: 16px; font-size: 11px; font-weight: 700; color: rgba(255,253,248,.75); background: rgba(0,0,0,.35); padding: 5px 10px; border-radius: 8px; backdrop-filter: blur(4px); }
-  .actu-une .contenu { padding: 30px; color: var(--creme); }
-  .cat { display: inline-flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase; padding: 6px 13px; border-radius: 999px; margin-bottom: 14px; }
-  .cat-titre { background: var(--grad-feu); color: #fff; }
-  .cat-jeunes { background: #ffe9c2; color: #8a5a0d; }
-  .cat-tournoi { background: #dff0e4; color: var(--vert); }
-  .actu-une h3 { font-size: clamp(26px, 3vw, 38px); font-weight: 900; line-height: 1.08; letter-spacing: -.8px; }
-  .actu-une p { margin-top: 12px; color: #d6cdba; font-size: 16px; max-width: 56ch; }
-  .actu-une .meta { margin-top: 16px; font-size: 13px; font-weight: 700; color: var(--ambre); }
-  .actus-col { display: grid; gap: 22px; }
+  .photo-note { position: absolute; top: 14px; right: 14px; font-size: 11px; font-weight: 600; color: rgba(255,253,248,.6); background: rgba(0,0,0,.35); padding: 5px 10px; border-radius: 6px; }
+  .actu-une .contenu { padding: 34px; color: var(--creme); }
+  .cat { display: inline-block; font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; padding-bottom: 4px; margin-bottom: 14px; border-bottom: 2px solid var(--or); color: var(--or-clair); }
+  .actu-une h3 { font-family: var(--serif); font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.12; letter-spacing: -.4px; }
+  .actu-une p { margin-top: 12px; color: #cfc6b4; font-size: 15.5px; max-width: 58ch; }
+  .actu-une .meta { margin-top: 18px; font-size: 13px; font-weight: 700; color: var(--or-clair); letter-spacing: .4px; }
+  .actus-col { display: grid; gap: 24px; }
   .actu-carte {
-    background: var(--blanc); border: 1px solid #eadfc9; border-radius: 18px; padding: 24px;
-    text-decoration: none; display: block; transition: transform .18s ease, box-shadow .18s ease;
-    box-shadow: 0 4px 18px rgba(36,29,18,.06); position: relative; overflow: hidden;
+    background: var(--blanc); border: 1px solid var(--ligne); border-radius: 14px; padding: 26px;
+    text-decoration: none; display: block; transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    box-shadow: 0 3px 14px rgba(33,27,18,.05);
   }
-  .actu-carte::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--grad-feu); }
-  .actu-carte:hover { transform: translateY(-4px); box-shadow: 0 14px 34px rgba(36,29,18,.12); }
-  .actu-carte h3 { font-size: 19px; font-weight: 850; line-height: 1.22; margin-top: 10px; }
-  .actu-carte .meta { margin-top: 12px; font-size: 13px; color: #a2937a; font-weight: 700; }
+  .actu-carte:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(33,27,18,.1); border-color: var(--or); }
+  .actu-carte .cat { color: var(--brique); border-color: var(--or); }
+  .actu-carte h3 { font-family: var(--serif); font-size: 19.5px; font-weight: 700; line-height: 1.25; }
+  .actu-carte .meta { margin-top: 14px; font-size: 13px; color: #a2937a; font-weight: 600; }
 
-  /* ====== Chiffres ====== */
-  .chiffres { background: var(--noir); color: var(--creme); position: relative; overflow: hidden; }
-  .chiffres::before { content: ""; position: absolute; inset: 0; background: repeating-conic-gradient(rgba(245,166,35,.05) 0% 25%, transparent 0% 50%) 0 0 / 110px 110px; }
-  .chiffres-grid { position: relative; display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; text-align: center; }
-  .chiffre .gros { font-size: clamp(38px, 5vw, 62px); font-weight: 900; letter-spacing: -2px; background: var(--grad-feu); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .chiffre .quoi { margin-top: 4px; font-size: 14px; font-weight: 700; color: #b3a78f; }
+  /* ====== Citation / héritage ====== */
+  .heritage { background: var(--noir); color: var(--creme); text-align: center; position: relative; overflow: hidden; }
+  .heritage::before { content: ""; position: absolute; inset: 0; background: radial-gradient(700px 300px at 50% 120%, rgba(201,154,63,.14), transparent 70%); }
+  .heritage blockquote { position: relative; font-family: var(--serif); font-size: clamp(24px, 3.4vw, 38px); font-style: italic; line-height: 1.3; max-width: 26ch; margin: 0 auto; }
+  .heritage blockquote em { color: var(--or-clair); font-style: italic; }
+  .heritage .attribution { position: relative; margin-top: 22px; font-size: 13px; letter-spacing: 2.5px; text-transform: uppercase; color: #a89b83; font-weight: 600; }
+  .heritage .stats { position: relative; margin-top: 46px; display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
+  .stat b { display: block; font-family: var(--serif); font-size: 40px; color: var(--or-clair); letter-spacing: -.5px; }
+  .stat span { font-size: 13px; color: #a89b83; letter-spacing: .6px; }
 
   /* ====== Tournois ====== */
-  .tournois-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .tournois-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
   .tcard {
-    border-radius: 20px; padding: 28px; color: #fff; position: relative; overflow: hidden;
-    display: flex; flex-direction: column; gap: 12px; min-height: 300px;
-    transition: transform .18s ease; text-decoration: none;
-    box-shadow: 0 18px 44px rgba(36,29,18,.22);
+    background: var(--blanc); border: 1px solid var(--ligne); border-radius: 16px; overflow: hidden;
+    text-decoration: none; display: flex; flex-direction: column;
+    transition: transform .18s ease, box-shadow .18s ease; box-shadow: 0 4px 18px rgba(33,27,18,.06);
   }
-  .tcard:hover { transform: translateY(-6px); }
-  .tcard::after { content: ""; position: absolute; right: -60px; bottom: -60px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.09); }
-  .t-masters { background: linear-gradient(140deg, #3a2c10, #16130f 70%); border: 1px solid #6b4e17; }
-  .t-blitz { background: linear-gradient(140deg, var(--brique), #7c1f0c 75%); }
-  .t-coupes { background: linear-gradient(140deg, #1f5c38, #0e2f1c 75%); }
-  .tcard .quand { font-size: 12px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; opacity: .85; }
-  .tcard h3 { font-size: 26px; font-weight: 900; letter-spacing: -.5px; }
-  .tcard p { font-size: 14.5px; opacity: .88; flex: 1; }
+  .tcard:hover { transform: translateY(-5px); box-shadow: 0 20px 44px rgba(33,27,18,.14); }
+  .tcard .bandeau { height: 7px; }
+  .b-masters { background: linear-gradient(90deg, var(--or), var(--or-clair)); }
+  .b-blitz { background: linear-gradient(90deg, var(--brique), #c9663a); }
+  .b-coupes { background: linear-gradient(90deg, var(--vert), #3f8a5b); }
+  .tcard .corps { padding: 28px; display: flex; flex-direction: column; gap: 12px; flex: 1; }
+  .tcard .quand { font-size: 11px; font-weight: 800; letter-spacing: 2.2px; text-transform: uppercase; color: #a2937a; }
+  .tcard h3 { font-family: var(--serif); font-size: 24px; font-weight: 700; letter-spacing: -.3px; }
+  .tcard p { font-size: 14.5px; color: var(--encre-2); flex: 1; }
   .series { display: flex; gap: 6px; }
-  .serie { font-size: 11px; font-weight: 900; padding: 4px 11px; border-radius: 999px; }
-  .serie.or { background: var(--ambre); color: #4a3405; }
-  .serie.argent { background: #dcdcdc; color: #444; }
-  .serie.bronze { background: #c98f5b; color: #46280d; }
-  .tcard .action { display: inline-flex; align-items: center; gap: 8px; font-weight: 900; font-size: 15px; }
-  .tcard .action .fleche { transition: transform .15s ease; }
+  .serie { font-size: 10.5px; font-weight: 800; letter-spacing: .8px; padding: 4px 11px; border-radius: 3px; text-transform: uppercase; }
+  .serie.or { background: #f4e5c4; color: #7a5a14; }
+  .serie.argent { background: #e8e8e8; color: #555; }
+  .serie.bronze { background: #ecd5bd; color: #6e3f16; }
+  .ouvert { display: inline-flex; align-items: center; gap: 8px; font-size: 11.5px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; color: var(--vert); }
+  .ouvert::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--vert); }
+  .tcard .action { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 14px; color: var(--encre); border-top: 1px solid var(--ligne); padding-top: 16px; }
+  .tcard .action .fleche { color: var(--or); transition: transform .15s ease; }
   .tcard:hover .action .fleche { transform: translateX(5px); }
-  .ouvert { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 900; background: rgba(255,255,255,.14); padding: 5px 12px; border-radius: 999px; }
-  .ouvert::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #6ee7a0; animation: pulse 2s infinite; }
 
   /* ====== École / problème ====== */
-  .ecole { background: var(--blanc); }
-  .ecole-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 48px; align-items: center; }
-  .ecole-txt h2 { font-size: clamp(30px, 4vw, 44px); font-weight: 900; letter-spacing: -1px; line-height: 1.05; }
-  .ecole-txt h2 .feu { background: var(--grad-feu); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .ecole-txt p { margin-top: 16px; color: var(--encre-2); font-size: 16.5px; }
-  .points-forts { margin-top: 22px; display: grid; gap: 12px; }
-  .pf { display: flex; gap: 14px; align-items: flex-start; background: var(--creme); border-radius: 14px; padding: 14px 16px; font-weight: 700; }
-  .pf .ico { font-size: 20px; }
-  .pf small { display: block; font-weight: 600; color: var(--encre-2); }
-  .probleme { background: var(--noir); border-radius: 22px; padding: 24px; color: var(--creme); box-shadow: 0 24px 60px rgba(36,29,18,.3); }
-  .probleme .haut { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .probleme .haut b { font-size: 13px; letter-spacing: 2px; text-transform: uppercase; color: var(--ambre); }
-  .probleme .haut span { font-size: 12px; color: #8f8672; font-weight: 700; }
-  .plateau { display: grid; grid-template-columns: repeat(10, 1fr); border-radius: 12px; overflow: hidden; border: 3px solid #0b0906; }
+  .ecole { background: var(--blanc); border-top: 1px solid var(--ligne); border-bottom: 1px solid var(--ligne); }
+  .ecole-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 56px; align-items: center; }
+  .ecole-txt h2 { font-family: var(--serif); font-size: clamp(30px, 4vw, 42px); font-weight: 700; letter-spacing: -.5px; line-height: 1.08; margin-top: 8px; }
+  .ecole-txt h2 em { font-style: italic; color: var(--or); }
+  .ecole-txt > p { margin-top: 18px; color: var(--encre-2); font-size: 16px; }
+  .points-forts { margin-top: 26px; display: grid; gap: 0; }
+  .pf { display: flex; gap: 16px; align-items: baseline; padding: 15px 0; border-bottom: 1px solid var(--ligne); }
+  .pf:first-child { border-top: 1px solid var(--ligne); }
+  .pf .num { font-family: var(--serif); font-size: 20px; color: var(--or); font-style: italic; }
+  .pf b { font-size: 15.5px; }
+  .pf small { display: block; color: var(--encre-2); font-size: 13.5px; margin-top: 2px; }
+  .probleme { background: var(--noir); border-radius: 16px; padding: 26px; color: var(--creme); box-shadow: 0 26px 60px rgba(33,27,18,.28); }
+  .probleme .haut { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 16px; }
+  .probleme .haut b { font-size: 12px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--or-clair); }
+  .probleme .haut span { font-size: 12px; color: #8f8672; font-weight: 600; }
+  .plateau { display: grid; grid-template-columns: repeat(10, 1fr); border-radius: 8px; overflow: hidden; border: 2px solid #0b0906; }
   .case { aspect-ratio: 1; position: relative; }
-  .case.c { background: #ecdfc2; }
-  .case.f { background: #47637a; }
+  .case.c { background: #e9dcc0; }
+  .case.f { background: #43392c; }
   .pion { position: absolute; inset: 14%; border-radius: 50%; }
   .pion.blanc { background: radial-gradient(circle at 35% 30%, #fffdf5, #d9cfb4 70%); box-shadow: inset 0 -2px 4px rgba(0,0,0,.35), 0 2px 3px rgba(0,0,0,.5); }
   .pion.noirp { background: radial-gradient(circle at 35% 30%, #55483c, #241e17 70%); box-shadow: inset 0 -2px 4px rgba(0,0,0,.5), 0 2px 3px rgba(0,0,0,.6); }
-  .probleme .consigne { margin-top: 14px; font-size: 14.5px; color: #cfc6b4; }
+  .probleme .consigne { margin-top: 16px; font-size: 14.5px; color: #cfc6b4; }
   .probleme .consigne b { color: #fff; }
 
   /* ====== Venir ====== */
-  .venir { position: relative; overflow: hidden; background: var(--grad-feu); color: #fff; }
-  .venir::before { content: ""; position: absolute; inset: 0; background: repeating-conic-gradient(rgba(255,255,255,.07) 0% 25%, transparent 0% 50%) 0 0 / 90px 90px; }
-  .venir-inner { position: relative; max-width: 1160px; margin: 0 auto; display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center; }
-  .venir h2 { font-size: clamp(32px, 4.5vw, 52px); font-weight: 900; letter-spacing: -1.2px; line-height: 1.02; }
-  .venir p { margin-top: 14px; font-size: 17px; opacity: .95; max-width: 48ch; }
-  .venir .btn { background: var(--noir); color: #fff; margin-top: 26px; box-shadow: 0 14px 34px rgba(0,0,0,.3); }
-  .horaires { background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.3); backdrop-filter: blur(8px); border-radius: 20px; padding: 26px; }
-  .horaires h3 { font-size: 14px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14px; }
-  .horaires .ligne { display: flex; justify-content: space-between; padding: 11px 0; border-bottom: 1px dashed rgba(255,255,255,.35); font-weight: 700; }
-  .horaires .ligne:last-of-type { border: none; }
-  .horaires .adresse { margin-top: 14px; font-size: 14px; opacity: .95; }
+  .venir { background: var(--creme); }
+  .venir-inner { max-width: 1160px; margin: 0 auto; background: var(--noir); border-radius: 20px; overflow: hidden; display: grid; grid-template-columns: 1.3fr 1fr; position: relative; }
+  .venir-inner::before { content: ""; position: absolute; right: -100px; top: -100px; width: 420px; height: 420px; background: repeating-conic-gradient(rgba(201,154,63,.08) 0% 25%, transparent 0% 50%) 0 0 / 104px 104px; transform: rotate(14deg); }
+  .venir-txt { position: relative; padding: 56px; color: var(--creme); }
+  .venir-txt h2 { font-family: var(--serif); font-size: clamp(28px, 3.6vw, 42px); font-weight: 700; letter-spacing: -.5px; line-height: 1.1; }
+  .venir-txt h2 em { font-style: italic; color: var(--or-clair); }
+  .venir-txt p { margin-top: 16px; font-size: 16px; color: #cfc6b4; max-width: 46ch; }
+  .venir-txt .btn { margin-top: 28px; }
+  .horaires { position: relative; background: var(--noir-2); border-left: 1px solid rgba(201,154,63,.3); padding: 56px 40px; color: var(--creme); }
+  .horaires h3 { font-size: 12px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--or-clair); margin-bottom: 18px; }
+  .horaires .ligne { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,.1); font-size: 15px; }
+  .horaires .ligne b { font-weight: 700; }
+  .horaires .ligne span { color: #a89b83; }
+  .horaires .adresse { margin-top: 18px; font-size: 14px; color: #a89b83; line-height: 1.6; }
+  .horaires .adresse b { color: var(--creme); }
 
-  footer { background: var(--noir); color: #9a917e; padding: 34px 24px; font-size: 14px; }
+  footer { background: var(--noir); color: #8f8672; padding: 34px 24px; font-size: 13.5px; border-top: 1px solid rgba(201,154,63,.2); }
   .footer-inner { max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   footer a { color: #cfc6b4; }
 
   @media (max-width: 920px) {
     nav a:not(.nav-cta) { display: none; }
-    .actus-grid, .ecole-grid, .venir-inner { grid-template-columns: 1fr; }
+    .actus-grid, .ecole-grid { grid-template-columns: 1fr; }
     .tournois-grid { grid-template-columns: 1fr; }
-    .chiffres-grid { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+    .venir-inner { grid-template-columns: 1fr; }
+    .horaires { border-left: none; border-top: 1px solid rgba(201,154,63,.3); }
     .actu-une { min-height: 380px; }
-    .pion-flottant { display: none; }
+    .heritage .stats { gap: 34px; }
   }
 </style>
 </head>
@@ -224,125 +225,136 @@
 <header>
   <div class="header-inner">
     <div class="logo-damier" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
-    <div class="brand">Damier Club de Wattrelos<small>Jeu de dames · FFJD</small></div>
+    <div class="brand">Damier Club de Wattrelos<small>Jeu de dames international</small></div>
     <nav aria-label="Navigation principale">
-      <a href="#actus">Actus</a>
+      <a href="#actus">Actualités</a>
       <a href="#tournois">Tournois</a>
       <a href="#">Résultats</a>
-      <a href="#ecole">École</a>
-      <a href="#">Galerie</a>
+      <a href="#ecole">École de dames</a>
+      <a href="#">Le club</a>
       <a href="#venir" class="nav-cta">Venir jouer</a>
     </nav>
   </div>
 </header>
 
 <div class="hero">
-  <span class="pion-flottant pf1" aria-hidden="true"></span>
-  <span class="pion-flottant pf2" aria-hidden="true"></span>
-  <span class="pion-flottant pf3" aria-hidden="true"></span>
   <div class="hero-inner">
-    <div class="badge-ligne">
-      <span class="chip plein">🏆 Champions interclubs 2026</span>
-      <span class="chip">Club formateur n°1 des jeunes</span>
-    </div>
-    <h1>Ici, on forme des <span class="feu">champions.</span></h1>
-    <p class="chapo">Le Damier Club de Wattrelos fait grandir les joueurs depuis plus de 30 ans —
-    des premières diagonales aux podiums des championnats de France. Pousse la porte, la première séance est offerte.</p>
+    <span class="surtitre">Wattrelos · Club affilié FFJD · depuis 1990</span>
+    <h1>L'école des <em>champions</em> du jeu de dames</h1>
+    <p class="chapo">Champion de France interclubs 2026, premier club formateur de jeunes depuis trente ans.
+    À Wattrelos, le jeu de dames se transmet, se travaille — et se gagne.</p>
     <div class="hero-cta">
-      <a class="btn btn-feu" href="#venir">Je viens essayer →</a>
-      <a class="btn btn-verre" href="#actus">Les dernières actus</a>
+      <a class="btn btn-or" href="#venir">Venir jouer</a>
+      <a class="btn btn-contour" href="#actus">Découvrir le club</a>
+    </div>
+    <div class="filet-bas">
+      <div class="fait"><b>Champions 2026</b><span>Interclubs, finale à Maresches</span></div>
+      <div class="fait"><b>30 ans</b><span>de formation des jeunes</span></div>
+      <div class="fait"><b>3 tournois</b><span>organisés chaque saison</span></div>
     </div>
   </div>
 </div>
 
 <div class="marquee" aria-hidden="true">
   <div class="marquee-piste">
-    <span>🏆 Wattrelos champion interclubs 2026 à Maresches</span><span class="sep">◆</span>
-    <span>🥇 Deux titres au championnat de France jeunes</span><span class="sep">◆</span>
-    <span>🔥 Inscriptions ouvertes — Blitz de Wattrelos</span><span class="sep">◆</span>
-    <span>♟ Séance découverte gratuite chaque mercredi 18h</span><span class="sep">◆</span>
-    <span>🏆 Wattrelos champion interclubs 2026 à Maresches</span><span class="sep">◆</span>
-    <span>🥇 Deux titres au championnat de France jeunes</span><span class="sep">◆</span>
-    <span>🔥 Inscriptions ouvertes — Blitz de Wattrelos</span><span class="sep">◆</span>
-    <span>♟ Séance découverte gratuite chaque mercredi 18h</span><span class="sep">◆</span>
+    <span>Wattrelos champion de France interclubs 2026</span><span class="sep">◆</span>
+    <span>Deux titres au championnat de France jeunes</span><span class="sep">◆</span>
+    <span>Inscriptions ouvertes · Blitz de Wattrelos</span><span class="sep">◆</span>
+    <span>Séance découverte gratuite le mercredi à 18 h</span><span class="sep">◆</span>
+    <span>Wattrelos champion de France interclubs 2026</span><span class="sep">◆</span>
+    <span>Deux titres au championnat de France jeunes</span><span class="sep">◆</span>
+    <span>Inscriptions ouvertes · Blitz de Wattrelos</span><span class="sep">◆</span>
+    <span>Séance découverte gratuite le mercredi à 18 h</span><span class="sep">◆</span>
   </div>
 </div>
 
 <section id="actus">
   <div class="inner">
     <div class="sec-tete reveal">
-      <div><span class="sur">Ça vient de se passer</span><h2>Les actus du club</h2></div>
-      <a class="tout" href="#">Toutes les actualités →</a>
+      <div><span class="surtitre">La vie du club</span><h2>Actualités</h2></div>
+      <a class="tout" href="#">Toutes les actualités</a>
     </div>
     <div class="actus-grid">
       <a class="actu-une reveal" href="#">
-        <span class="photo-note">📷 photo du club à insérer ici</span>
+        <span class="photo-note">Photo du club à insérer</span>
         <div class="contenu">
-          <span class="cat cat-titre">🏆 Titre majeur</span>
-          <h3>CHAMPIONS ! Wattrelos s'impose en finale interclubs à Maresches</h3>
-          <p>L'équipe première décroche le titre le 25 mai après une finale à suspense.
-          Le récit d'une saison exceptionnelle, partie par partie.</p>
-          <span class="meta">25 mai 2026 · Lire le compte-rendu →</span>
+          <span class="cat">Titre national</span>
+          <h3>Wattrelos décroche le titre interclubs en finale à Maresches</h3>
+          <p>Le 25 mai, l'équipe première a conclu une saison exceptionnelle en s'imposant
+          en finale du championnat de France interclubs. Le récit d'un titre construit toute l'année.</p>
+          <span class="meta">25 mai 2026 — Lire le compte-rendu</span>
         </div>
       </a>
       <div class="actus-col">
         <a class="actu-carte reveal" href="#">
-          <span class="cat cat-jeunes">Jeunes</span>
-          <h3>Deux titres et une razzia de podiums au championnat de France jeunes</h3>
-          <span class="meta">Avril 2026 · France jeunes →</span>
+          <span class="cat">Jeunes</span>
+          <h3>Deux titres et plusieurs podiums au championnat de France jeunes</h3>
+          <span class="meta">Avril 2026 · France jeunes</span>
         </a>
         <a class="actu-carte reveal" href="#">
-          <span class="cat cat-tournoi">Tournoi</span>
-          <h3>Le Blitz de Wattrelos revient — les inscriptions sont ouvertes</h3>
-          <span class="meta">Mars 2026 · S'inscrire →</span>
+          <span class="cat">Tournoi</span>
+          <h3>Le Blitz de Wattrelos ouvre ses inscriptions</h3>
+          <span class="meta">Mars 2026 · S'inscrire</span>
         </a>
         <a class="actu-carte reveal" href="#">
-          <span class="cat cat-jeunes">École</span>
-          <h3>L'école de dames repart pour une saison : créneaux du mercredi et du samedi</h3>
-          <span class="meta">Septembre · École de dames →</span>
+          <span class="cat">École</span>
+          <h3>L'école de dames fait sa rentrée : créneaux du mercredi et du samedi</h3>
+          <span class="meta">Septembre · École de dames</span>
         </a>
       </div>
     </div>
   </div>
 </section>
 
-<section class="chiffres">
-  <div class="inner chiffres-grid">
-    <div class="chiffre reveal"><div class="gros">30+</div><div class="quoi">années de formation</div></div>
-    <div class="chiffre reveal"><div class="gros">N°1</div><div class="quoi">club formateur de jeunes</div></div>
-    <div class="chiffre reveal"><div class="gros">3</div><div class="quoi">tournois organisés chaque saison</div></div>
-    <div class="chiffre reveal"><div class="gros">2026</div><div class="quoi">champions interclubs</div></div>
+<section class="heritage">
+  <div class="inner reveal">
+    <blockquote>« Ici, on n'apprend pas seulement à jouer.<br>On apprend à <em>gagner</em>. »</blockquote>
+    <div class="attribution">Damier Club de Wattrelos — depuis 1990</div>
+    <div class="stats">
+      <div class="stat"><b>30+</b><span>années de formation</span></div>
+      <div class="stat"><b>1<sup>er</sup></b><span>club formateur de jeunes</span></div>
+      <div class="stat"><b>2026</b><span>champions interclubs</span></div>
+    </div>
   </div>
 </section>
 
 <section id="tournois">
   <div class="inner">
     <div class="sec-tete reveal">
-      <div><span class="sur">Trois rendez-vous, une réputation</span><h2>Les tournois de Wattrelos</h2></div>
+      <div><span class="surtitre">Trois rendez-vous, une réputation</span><h2>Les tournois de Wattrelos</h2></div>
     </div>
     <div class="tournois-grid">
-      <a class="tcard t-masters reveal" href="#">
-        <span class="quand">Toute la saison</span>
-        <h3>Masters de Wattrelos</h3>
-        <div class="series"><span class="serie or">Série Or</span><span class="serie argent">Argent</span><span class="serie bronze">Bronze</span></div>
-        <p>72 joueurs, trois séries, des poules aux phases finales. Le tournoi qui fait venir
-        des joueurs de toute la France — et d'ailleurs.</p>
-        <span class="action">Édition 2026 <span class="fleche">→</span></span>
+      <a class="tcard reveal" href="#">
+        <div class="bandeau b-masters"></div>
+        <div class="corps">
+          <span class="quand">Toute la saison</span>
+          <h3>Masters de Wattrelos</h3>
+          <div class="series"><span class="serie or">Or</span><span class="serie argent">Argent</span><span class="serie bronze">Bronze</span></div>
+          <p>Soixante-douze joueurs répartis en trois séries selon le classement, des poules
+          aux phases finales. Une référence qui dépasse les frontières.</p>
+          <span class="action">Édition 2026 <span class="fleche">→</span></span>
+        </div>
       </a>
-      <a class="tcard t-blitz reveal" href="#">
-        <span class="quand">Chaque année</span>
-        <h3>Blitz de Wattrelos</h3>
-        <span class="ouvert">Inscriptions ouvertes</span>
-        <p>5 minutes + 3 secondes par coup. La pendule qui tourne, la salle qui vibre :
-        le rendez-vous le plus intense de la saison.</p>
-        <span class="action">Je m'inscris <span class="fleche">→</span></span>
+      <a class="tcard reveal" href="#">
+        <div class="bandeau b-blitz"></div>
+        <div class="corps">
+          <span class="quand">Chaque année</span>
+          <h3>Blitz de Wattrelos</h3>
+          <span class="ouvert">Inscriptions ouvertes</span>
+          <p>Cinq minutes et trois secondes par coup : la cadence reine, l'intensité
+          d'une salle pleine et une pendule qui ne pardonne rien.</p>
+          <span class="action">S'inscrire <span class="fleche">→</span></span>
+        </div>
       </a>
-      <a class="tcard t-coupes reveal" href="#">
-        <span class="quand">Octobre</span>
-        <h3>Coup(é)s en deux</h3>
-        <p>En duo : un blitz + une semi-rapide par rencontre, poules puis élimination directe.
-        Le plus convivial — venez avec votre binôme.</p>
-        <span class="action">Palmarès &amp; infos <span class="fleche">→</span></span>
+      <a class="tcard reveal" href="#">
+        <div class="bandeau b-coupes"></div>
+        <div class="corps">
+          <span class="quand">Octobre</span>
+          <h3>Coup(é)s en deux</h3>
+          <p>Par équipes de deux, un blitz et une semi-rapide par rencontre, poules puis
+          élimination directe. Le rendez-vous convivial du calendrier.</p>
+          <span class="action">Palmarès &amp; informations <span class="fleche">→</span></span>
+        </div>
       </a>
     </div>
   </div>
@@ -351,18 +363,19 @@
 <section class="ecole" id="ecole">
   <div class="inner ecole-grid">
     <div class="ecole-txt reveal">
-      <h2>L'école qui fait <span class="feu">éclore les talents</span></h2>
-      <p>Depuis le début des années 1990, Wattrelos est LA référence de la formation des jeunes
-      damistes : cours structurés, problèmes composés au club, compétitions adaptées à chaque âge.</p>
+      <span class="surtitre">Formation</span>
+      <h2>L'école de dames, notre <em>fierté</em></h2>
+      <p>Premier club formateur de jeunes depuis le début des années 1990, Wattrelos transmet
+      le jeu de génération en génération — avec méthode, exigence et plaisir du jeu.</p>
       <div class="points-forts">
-        <div class="pf"><span class="ico">🎓</span><div>Cours du club, du débutant au compétiteur<small>Ouvertures, partie classique, fins de partie</small></div></div>
-        <div class="pf"><span class="ico">🧩</span><div>Le problème de la semaine<small>Composé par les membres du club</small></div></div>
-        <div class="pf"><span class="ico">🏫</span><div>Le jeu de dames à l'école<small>Interventions dans les écoles de Wattrelos</small></div></div>
+        <div class="pf"><span class="num">I.</span><div><b>Cours structurés, du débutant au compétiteur</b><small>Ouvertures, partie classique, fins de partie</small></div></div>
+        <div class="pf"><span class="num">II.</span><div><b>Problèmes composés au club</b><small>Par les membres, pour progresser chaque semaine</small></div></div>
+        <div class="pf"><span class="num">III.</span><div><b>Le jeu de dames à l'école</b><small>Interventions dans les écoles de Wattrelos</small></div></div>
       </div>
-      <a class="btn btn-feu" style="margin-top:26px" href="#">Inscrire mon enfant →</a>
+      <a class="btn btn-or" style="margin-top:28px" href="#">Inscrire un enfant</a>
     </div>
     <div class="probleme reveal">
-      <div class="haut"><b>🧩 Problème de la semaine</b><span>niveau : costaud</span></div>
+      <div class="haut"><b>Problème de la semaine</b><span>Composition du club</span></div>
       <div class="plateau" aria-label="Problème de dames, les blancs jouent et gagnent">
         <div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"><span class="pion noirp"></span></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div>
         <div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"><span class="pion noirp"></span></div><div class="case c"></div><div class="case f"></div><div class="case c"></div>
@@ -375,33 +388,34 @@
         <div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div>
         <div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div><div class="case f"></div><div class="case c"></div>
       </div>
-      <p class="consigne"><b>Les blancs jouent et gagnent.</b> Tu vois le coup ? Viens le montrer mercredi —
-      ou clique sur le damier (interactif dans la version finale).</p>
+      <p class="consigne"><b>Les blancs jouent et gagnent.</b> La solution se joue au club le mercredi —
+      version interactive à venir sur le site.</p>
     </div>
   </div>
 </section>
 
 <section class="venir" id="venir">
-  <div class="venir-inner">
-    <div class="reveal">
-      <h2>Ta première partie, c'est mercredi.</h2>
-      <p>Séance découverte gratuite, matériel prêté, tous âges et tous niveaux.
-      Tu repars en connaissant les règles — et sûrement avec l'envie de revenir.</p>
-      <a class="btn" href="#">Prévenir de ma venue →</a>
+  <div class="venir-inner reveal">
+    <div class="venir-txt">
+      <span class="surtitre">Nous rejoindre</span>
+      <h2 style="margin-top:8px">Votre première partie <em>vous attend</em></h2>
+      <p>Séance découverte gratuite, matériel prêté par le club, tous âges et tous niveaux.
+      Vous repartirez en connaissant les règles — et probablement avec l'envie de revenir.</p>
+      <a class="btn btn-or" href="#">Prévenir de ma venue</a>
     </div>
-    <div class="horaires reveal">
-      <h3>🕰️ Quand venir</h3>
-      <div class="ligne"><span>Mercredi</span><span>dès 18h00</span></div>
-      <div class="ligne"><span>Samedi matin</span><span>9h30 – 12h00</span></div>
-      <div class="ligne"><span>Samedi après-midi</span><span>14h00 – 18h00</span></div>
-      <p class="adresse">📍 Salle Jean Jaurès — 51 rue Jean Jaurès, 59150 Wattrelos</p>
+    <div class="horaires">
+      <h3>Horaires &amp; accès</h3>
+      <div class="ligne"><b>Mercredi</b><span>dès 18 h 00</span></div>
+      <div class="ligne"><b>Samedi matin</b><span>9 h 30 – 12 h 00</span></div>
+      <div class="ligne"><b>Samedi après-midi</b><span>14 h 00 – 18 h 00</span></div>
+      <p class="adresse"><b>Salle Jean Jaurès</b><br>51 rue Jean Jaurès, 59150 Wattrelos</p>
     </div>
   </div>
 </section>
 
 <footer>
   <div class="footer-inner">
-    <div>© Damier Club de Wattrelos · affilié à la <a href="#">FFJD</a> · <a href="#">Ligue des Hauts-de-France</a></div>
+    <div>© Damier Club de Wattrelos — affilié à la <a href="#">FFJD</a> · <a href="#">Ligue des Hauts-de-France</a></div>
     <div><a href="#">Mentions légales</a> · <a href="#">Espace membres</a></div>
   </div>
 </footer>
